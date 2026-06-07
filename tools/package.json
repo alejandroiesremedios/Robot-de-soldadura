@@ -1,0 +1,15 @@
+{
+  "name": "pdf-extract-tools",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "extract": "node extract-pdfs.mjs"
+  },
+  "dependencies": {
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "pdf-to-png-converter": "^3.18.0"
+  }
+}

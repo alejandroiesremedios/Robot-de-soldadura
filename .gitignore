@@ -1,0 +1,9 @@
+node_modules
+dist
+dist-standalone
+dev-dist
+.vite
+.DS_Store
+tools/extracted
+tools/node_modules
+Robot Soldadura.html
