@@ -250,6 +250,83 @@ export const PROCEDURES: Procedure[] = [
     source: 'Touch_sensing.pdf (LARRAIOZ Elektronika)',
   },
   {
+    id: 'weaving',
+    title: 'Añadir weaving (oscilación) a un cordón',
+    category: 'Soldadura',
+    summary:
+      'Convierte un cordón recto en oscilante para ensancharlo, repartir mejor el calor o rellenar un chaflán. Se hace eligiendo Anchura, Frecuencia y Patrón en los datos auxiliares de los puntos WC y WE.',
+    cover: {
+      src: pdfImage('arc_welding', 216),
+      caption:
+        'Direcciones del weaving (vertical / lateral / horizontal) y anchura WV (Arc Welding §10.2).',
+    },
+    steps: [
+      {
+        text:
+          'Punto de partida: programa con un cordón ya enseñado (WS al inicio, uno o más WC intermedios y un WE final). Si todavía no tienes el cordón, primero hazlo recto y luego vuelve a este procedimiento — el weaving se añade sobre un cordón que ya funciona.',
+        refs: [
+          { to: 'instrucciones-punto', label: 'WS / WC / WE' },
+          { to: 'interpolaciones', label: 'Interpolación (normalmente LINEAR)' },
+        ],
+      },
+      {
+        text:
+          'Decide los tres parámetros antes de tocar el TP. Anchura WV (mm): cuánto abre el zigzag. Frecuencia (Hz): ondas por segundo (a más frecuencia, ondas más juntas). Patrón (PN): la forma de la oscilación. Para un cordón corriente de relleno, un buen punto de partida es PN = 1 (armónico simple con parada en ambos extremos), WV 2-4 mm y 1-2 Hz, pero conviene afinar con probetas.',
+        refs: [{ to: 'weaving', label: 'Qué significa cada parámetro' }],
+      },
+      {
+        text:
+          'Mira la lista de patrones estándar del controlador y elige uno. Vienen seis cargados de fábrica: Standard (armónico simple), PN=1 (armónico con paradas), PN=2 (triangular), PN=3 (triangular recíproco), PN=4 (circular CW), PN=5 (circular CCW). Los PN 6 a 10 están vacíos — son los huecos para los patrones personalizados de la opción especial.',
+        image: pdfImage('arc_welding', 213),
+        caption:
+          'Tabla de los seis patrones estándar de weaving registrados en el robot (Arc Welding §10.1.1).',
+      },
+      {
+        text:
+          'En el TP, abre el programa y pon el cursor en el primer punto WC del cordón. El weaving se mete en datos auxiliares de WC y WE — el WS (inicio de soldadura) no acepta datos de weaving, la oscilación arranca desde el primer WC.',
+        image: pdfImage('arc_welding', 56),
+        caption:
+          'Apartado §5.5.12: los datos de weaving (Width, Frequency, Pattern N.º) están disponibles para WC y WE, no para WS.',
+        refs: [{ to: 'teach-pendant', label: 'Mover el cursor en el TP' }],
+      },
+      {
+        text:
+          'Con el cursor en el WC, navega por la fila de datos auxiliares con las flechas / hasta llegar a "Weaving data" (datos de desplazamiento lateral). Pulsa ENTER para abrir la pantalla de configuración.',
+        refs: [{ to: 'teach-pendant', label: 'Teclas del TP' }],
+      },
+      {
+        text:
+          'Introduce los tres valores: Weaving pattern N.º (el PN que elegiste — 1, 2, 3, 4, 5 o "Standard"), Weaving width (anchura en mm), Weaving frequency (frecuencia en Hz). Confirma con ENTER. La fila de auxiliares del WC queda marcada con el dato de weaving.',
+      },
+      {
+        text:
+          'Repite el dato en cada WC adicional del cordón y también en el WE de cierre. Atajo útil: si los siguientes WC y el WE llevan el mismo weaving, normalmente el controlador hereda el dato del WC anterior — verifica que sí en tu programa, si no, repítelo manualmente. El cambio de dato en un WC posterior se aplica desde ese punto hasta el siguiente cambio.',
+      },
+      {
+        text:
+          'Prueba en CHECK con la soldadura desactivada. Por defecto el robot recorre la línea base sin oscilar y muestra "Weaving OFF" en pantalla — esto es a propósito, así verificas trayectoria sin esperar al zigzag.',
+        image: pdfImage('arc_welding', 78),
+        caption:
+          'Indicador "Weaving OFF" en pantalla durante CHECK con soldadura deshabilitada (Arc Welding §6.2).',
+        refs: [{ to: 'teach-pendant', label: 'Modo CHECK' }],
+      },
+      {
+        text:
+          'Si quieres ver también la oscilación en CHECK (para validar que la anchura cabe sin chocar con la pieza/utillaje), cambia Aux. 140409 → "Weaving Motion at Weld Off" a Enable (Habilitar). Recuerda volver a dejarlo como lo tenías al terminar la prueba.',
+      },
+      {
+        text:
+          'Solda una probeta del mismo material y espesor. Mide la anchura real del cordón, observa la penetración en los extremos y revisa que no haya mordeduras en los laterales. Si hace falta, ajusta: más anchura → cordón más ancho; más frecuencia → ondas más cerradas; cambio de patrón → distinto reparto del calor (p. ej. triangular concentra más en el centro que armónico).',
+      },
+    ],
+    notes: [
+      'El weaving se introduce en WC y WE; el WS no acepta datos de weaving.',
+      'Patrones PN=6..10 requieren la opción "Special Pattern Weaving" (Aux 1404-11). Tiene procedimiento aparte.',
+      'Para soldadura de chapa fina, mejor empezar sin weaving y añadir solo si el cordón es estrecho o irregular: oscilar mete más calor.',
+    ],
+    source: 'Arc Welding Operation Manual (Serie E), §5.5.12, §6.2 y §10.',
+  },
+  {
     id: 'cambio-hilo',
     title: 'Cambio de bobina de hilo',
     category: 'Mantenimiento',
