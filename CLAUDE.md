@@ -43,7 +43,7 @@ Listado maestro de procedimientos que deben existir en la app (pantalla Procedim
 
 - 🔵 Crear weaving / oscilación sobre un cordón (Arc Welding §5.5.12, §6.2, §10)
 - ✅ Weaving triangular para 3F y 3G ascendente (GMAW, acero, hilo Ø1,0) — PN=2, parámetros orientativos
-- ⬜ Programa de soldadura básico — AS / WS / WC / WE entre puntos (Arc Welding §4–§5)
+- ✅ Programa de soldadura básico — AC / WS / WC / WE entre puntos (Arc Welding §5.6–§5.8, figura 5.1)
 - ⬜ Dar de alta una entrada en la base de datos de condiciones de soldadura (Aux 0420) (Arc Welding)
 - ✅ Crear / editar patrón especial de weaving (Aux 1404-11) — modificar tiempos y paradas en vértices, con caso aplicado a unión a tope vertical ascendente (Arc Welding §10.3–§10.4 + Apéndice 3)
 - ⬜ Copiar / mover / borrar pasos de un programa (Serie E §6 edición de programa)
@@ -148,6 +148,13 @@ Patrón ya validado en el procedimiento de **wire check** y en las secciones de 
 - Optimizada `robot.jpg` (3,4 MB) → `robot.webp` (132 kB, -96 %) con `sharp` (devDep nueva) y nuevo script `tools/optimize-images.mjs` (resize a 1200 px + WebP q82). Borrado el duplicado `public/robot.jpg` que se servía sin uso. Precache PWA bajó de 17,4 MiB a 10,7 MiB.
 - Añadidos `tools/find-pdf-pages.mjs` (localiza páginas por contenido) y `tools/dump-pdf-pages.mjs` (vuelca texto plano por página) para preparar selecciones futuras.
 - `tools/render-pdf-pages.mjs` acepta filtro por id en argv (`node render-pdf-pages.mjs serie_e`) para no re-renderizar todo.
+
+### 2026-06-08 (continuación)
+
+- Nuevo procedimiento **"Programa de soldadura básico — un cordón entre dos puntos (AC / WS / WC / WE)"** (id `programa-basico`) en `src/data/procedures.ts`. 14 pasos cubriendo: planificar trayectoria (P0..P5), elegir interpolaciones, decidir estado de soldadura (directo vs por número), entender condiciones disponibles, crear/abrir programa, paso 1 (AC en P0), paso 2 (WS en P1 con ajuste de ángulo del soplete), paso 3 (WC en P2 con técnica de escape Z- en herramienta), paso 4 (WE en P3 con cráter), paso 5 (AC en P4), cierre con retorno a HOME, verificación en CHECK (sin arco, con arco), paso a AUTO. 6 notas con la regla AC/WS/WC/WE, estado igual en el cordón, tratamiento de cráter solo en WE, weaving solo en WC/WE, REC vs MOD, semántica de velocidades. Insertado antes del weaving porque es el procedimiento estructural sobre el que se apoyan los demás. Marcado ✅ en el inventario.
+- Renderizadas 8 páginas nuevas del manual Arc Welding: 61 (§5.7.2 datos auxiliares vs estado), 62 (tabla tipos de condiciones), 66 (Figura 5.2 pantalla pg10), 67 (paso 1 P0/AC + Figura 5.3), 68 (paso 2 P1/WS con ángulo soplete 45°), 69 (paso 3 P2/WC con escape Z-), 70 (paso 4 P3/WE), 71 (paso 5 P4/AC + Figura 5.7).
+- Inventario `arc_welding` ampliado a 30 páginas (22 → 30).
+- Build OK (`npm run build`, 79 entries / 17,8 MiB precache).
 
 ### 2026-06-08
 

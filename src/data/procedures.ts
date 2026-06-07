@@ -250,6 +250,135 @@ export const PROCEDURES: Procedure[] = [
     source: 'Touch_sensing.pdf (LARRAIOZ Elektronika)',
   },
   {
+    id: 'programa-basico',
+    title: 'Programa de soldadura básico — un cordón entre dos puntos (AC / WS / WC / WE)',
+    category: 'Soldadura',
+    summary:
+      'Cómo enseñar al robot un cordón completo desde cero: ir manualmente con el TP hasta un punto de aproximación seguro, arrancar el arco, recorrer la trayectoria de soldadura, apagar el arco y escapar a un punto fuera de la pieza. El cordón usa cuatro instrucciones encadenadas — AC (movimiento de aire), WS (inicio de soldadura), WC (continuación de soldadura) y WE (fin de soldadura) — que se graban con REC junto con la pose del robot. Es el procedimiento estructural sobre el que se apoyan todos los demás: weaving, touch sensing, base de datos de condiciones, etc.',
+    cover: {
+      src: pdfImage('arc_welding', 65),
+      caption:
+        'Figura 5.1 del manual: trayectoria estándar de aprendizaje. P0 = inicio de trabajo, P1 = inicio de soldadura, P2 = continuación, P3 = fin de soldadura, P4 = escape, P5 = fin de trabajo (Arc Welding §5.8.3).',
+    },
+    steps: [
+      {
+        text:
+          'Estudia la geometría y dibuja la trayectoria sobre papel antes de tocar el TP. Para un cordón sencillo necesitas 5 puntos: P0 punto de aproximación seguro fuera de la pieza, P1 inicio del cordón (donde arranca el arco), P2 puntos intermedios (los que haga falta para definir la curva), P3 fin del cordón (donde se apaga el arco), P4 punto de escape — alejado de la pieza, lo bastante para que el soplete pueda moverse libremente al volver al inicio del programa. Un programa real cierra en P5 = HOME, pero el cordón en sí va de P1 a P3.',
+        image: pdfImage('arc_welding', 60),
+        caption:
+          'Flujo básico §5.7.1: P0 → P1 (arco ON) → P2 → P3 (arco OFF) → P3 escape. Caso de cordón recto de redondeo horizontal entre dos puntos (Arc Welding §5.7.1).',
+        refs: [
+          { to: 'instrucciones-punto', label: 'AC / WS / WC / WE' },
+          { to: 'interpolaciones', label: 'Joint / Linear / Circular' },
+        ],
+      },
+      {
+        text:
+          'Decide qué interpolación lleva cada tramo. Regla práctica: P0 → P1 en JOINT (movimiento rápido entre articulaciones, sin importarle la trayectoria mientras llega bien); P1 → P2 → P3 en LINEAR (línea recta entre puntos, imprescindible mientras se suelda); P3 → P4 normalmente LINEAR o JOINT según haya o no obstáculos. Si el cordón tiene una curva (p. ej. una redonda) usa CIRCULAR1 con un punto intermedio que marque la curva.',
+        refs: [{ to: 'interpolaciones', label: 'Interpolaciones explicadas' }],
+      },
+      {
+        text:
+          'Decide el estado de soldadura ANTES de empezar a grabar. El número de estado de soldadura (Weld condition N.º) es un puntero a una entrada de la base de datos de condiciones (Aux 0420 / 1403) que guarda velocidad, corriente, tensión, frecuencia y patrón de weaving, etc. Si la entrada que vas a usar no existe todavía, créala primero (procedimiento de Aux 0420) o usa el modo "directo" introduciendo los valores en el propio paso. Para un cordón sencillo de prueba, el estado 0 suele venir con valores razonables de fábrica.',
+        image: pdfImage('arc_welding', 61),
+        caption:
+          'Datos auxiliares vs. estado de soldadura (§5.7.2). Auxiliares = movimiento (velocidad, precisión, timer); estado = arco (velocidad de soldadura, corriente, tensión, weaving).',
+        refs: [{ to: 'job-ewm', label: 'Programa del JOB en el EWM' }],
+      },
+      {
+        text:
+          'Comprueba qué incluye un "estado de soldadura". Hay tres bloques: (a) estado básico — Weld Speed (cm/min) + señales de salida 1/2/3/4 (típicamente corriente, tensión, weaving y libre); (b) estado de cráter — los mismos parámetros pero solo aplicables en el WE para el tratamiento del cráter al cerrar; (c) estado de punto de arco — para soldadura por puntos AS, no para cordón. Si tu pieza pide tratamiento de cráter, asegúrate de que el estado tiene Crater output signals configuradas.',
+        image: pdfImage('arc_welding', 62),
+        caption:
+          'Tabla §5.7.2.2: tipos de condiciones disponibles dentro de un estado de soldadura.',
+      },
+      {
+        text:
+          'Crea o abre el programa. En el TP: <PROGRAM> → escribe un nombre (p. ej. "pg10") → ENTER. Si ya existe, cárgalo. El cursor queda en el paso 1 vacío, listo para grabar. La cabecera de la pantalla muestra el nombre del programa y la fila de instrucción/interpolación/velocidad/precisión/timer del paso activo.',
+        image: pdfImage('arc_welding', 66),
+        caption:
+          'Pantalla de aprendizaje del programa pg10 con el contenido a instruir (§5.8.3, Figura 5.2).',
+        refs: [{ to: 'teach-pendant', label: 'Pantalla de aprendizaje' }],
+      },
+      {
+        text:
+          'Paso 1 — grabar P0 (aproximación, AC). Pulsa DEADMAN + las teclas de eje (+/–) para llevar la punta del soplete a P0, un punto seguro a 30-50 mm de la pieza sobre la zona donde arrancará el cordón. En la fila de datos auxiliares: instrucción = AC (movimiento de aire, arco apagado), interpolación = JOINT, velocidad = 9 (rápido), precisión = 2 (suelto), timer = 0. Pulsa REC. El controlador graba pose + auxiliares como paso 1 y avanza el contador. La pantalla muestra ahora la fila del paso 2 vacía.',
+        image: pdfImage('arc_welding', 67),
+        caption:
+          'Paso 1 grabado: AC en P0. Figura 5.3 del manual con el cursor ya en el paso 2 (Arc Welding §5.8.3).',
+        refs: [
+          { to: 'grabar-punto', label: 'Cómo se graba un punto' },
+          { to: 'instrucciones-punto', label: 'Qué es AC' },
+        ],
+      },
+      {
+        text:
+          'Paso 2 — grabar P1 (inicio del cordón, WS). Cambia al modo de coordenadas BASE con <COORD> para mover el TCP en X/Y/Z del mundo. Si la antorcha pide un ángulo concreto (p. ej. 45° entre chapas para un cordón en ángulo), ajusta con A+JT6+/–. Mueve la punta del soplete cerca de P1, luego baja <TEACH SPEED> a velocidad 1 (avance lento) y posiciona con precisión sobre el punto exacto de inicio del cordón. En auxiliares: instrucción = WS, interpolación = LINEAR, velocidad = 9, timer = 0, estado de soldadura = el N.º elegido. Pulsa REC. WS marca el inicio del arco — el robot encenderá el arco al llegar a este punto.',
+        image: pdfImage('arc_welding', 68),
+        caption:
+          'Paso 2 — Modo COORD base, ajuste de ángulo del soplete con A+JT6, posicionamiento fino con TEACH SPEED = 1, instrucción WS lineal (Arc Welding §5.8.3, paso 2).',
+        refs: [
+          { to: 'instrucciones-punto', label: 'Qué es WS' },
+          { to: 'partes-robot', label: 'Sistemas de coordenadas' },
+        ],
+      },
+      {
+        text:
+          'Paso 3 — grabar P2 (continuación del cordón, WC). Sin levantar el soplete (estás soldando), mueve la punta a P2 en modo base con avance lento. Si vas a hacer el WC en línea recta con el WS, basta moverse de frente; si la geometría del cordón te obliga a un punto intermedio que no estaría en la línea base, usa el modo de coordenadas de HERRAMIENTA y desplaza con Z- temporalmente para no chocar con la chapa mientras posicionas. En auxiliares: instrucción = WC, interpolación = LINEAR, estado de soldadura = mismo N.º que el WS. Pulsa REC. Repite tantos WC como puntos intermedios tenga el cordón — cada cambio de dirección necesita su WC.',
+        image: pdfImage('arc_welding', 69),
+        caption:
+          'Paso 3 — WC en P2 con técnica de escape Z- en modo herramienta para posicionar sin chocar (Arc Welding §5.8.3, paso 3).',
+        refs: [{ to: 'instrucciones-punto', label: 'Qué es WC' }],
+      },
+      {
+        text:
+          'Paso 4 — grabar P3 (fin del cordón, WE). Última posición sobre el cordón, donde el robot apagará el arco. Posiciona y graba: instrucción = WE, interpolación = LINEAR, estado de soldadura = mismo N.º. WE es el único punto donde se aplica el "tratamiento de cráter" — un escalón final de corriente y tensión más bajas durante un tiempo corto (p. ej. 0,5 s) que rellena el cráter y evita la grieta de cráter típica al cortar el arco bruscamente. Si el estado N.º que usas tiene Crater output signals configuradas, esto pasa automáticamente; si no, el arco se corta seco.',
+        image: pdfImage('arc_welding', 70),
+        caption:
+          'Paso 4 — WE en P3. Solo el WE refleja el tratamiento de cráter del estado de soldadura (Arc Welding §5.8.3, paso 4).',
+        refs: [{ to: 'instrucciones-punto', label: 'Qué es WE' }],
+      },
+      {
+        text:
+          'Paso 5 — grabar P4 (escape, AC). Cambia al modo de coordenadas HERRAMIENTA y pulsa Z- para retirar el soplete perpendicularmente a la chapa unos 20-30 mm. Esto saca la antorcha de la zona del cordón en línea recta sin riesgo de arrastrar gotas calientes por la pieza. Si necesitas alejarte más para volver al inicio del programa sin chocar con utillaje, sigue moviéndote a un punto P4 cómodo. En auxiliares: instrucción = AC (arco ya está apagado desde el WE), interpolación = LINEAR, velocidad = 9, precisión = 2, timer = 0. Pulsa REC.',
+        image: pdfImage('arc_welding', 71),
+        caption:
+          'Paso 5 — AC en P4 tras escape Z- en modo herramienta. Figura 5.7 del manual con el cursor en el paso 6 (Arc Welding §5.8.3, paso 5).',
+        refs: [{ to: 'instrucciones-punto', label: 'AC tras WE' }],
+      },
+      {
+        text:
+          'Cierra el programa con el retorno a HOME. Graba un último paso AC con interpolación JOINT, velocidad 9, precisión 2 a la pose de HOME del robot (la misma desde la que arranca cualquier programa). Esto deja al robot listo para reiniciar el ciclo o ir a otro programa. Si tu robot vuelve a HOME desde el código (función POS HOME) no hace falta el paso final, pero es buena práctica grabarlo explícitamente.',
+        refs: [{ to: 'home', label: 'Qué es la posición HOME' }],
+      },
+      {
+        text:
+          'Verifica el programa en CHECK con la soldadura DESACTIVADA (Aux para deshabilitar arco). Pulsa <CHECK> y recorre paso a paso con CYCLE START a velocidad reducida. Observa: que P0 deja la antorcha donde quieres antes de tocar la pieza, que la trayectoria de soldadura no choca con utillaje, que el ángulo del soplete es razonable a lo largo del cordón, que el escape P4 efectivamente saca la antorcha. Si algo falla, edita el paso problemático con MOD (modificar sin reaprender la instrucción) — no uses REC para corregir un paso, REC graba un nuevo paso.',
+        refs: [{ to: 'teach-pendant', label: 'Modo CHECK' }],
+      },
+      {
+        text:
+          'Repite en CHECK con soldadura HABILITADA sobre probeta del mismo material, espesor y posición. Revisa: el arco arranca limpio en P1 (sin chisporroteo prolongado), el cordón es continuo sin interrupciones de P1 a P3, el cráter en P3 queda relleno (sin agujero ni grieta), la longitud y la anchura coinciden con lo esperado. Si algo no encaja, lo más rápido es ajustar el estado de soldadura (subir o bajar WFS, U-corr, velocidad) sin tocar el programa — un mismo programa puede dar resultados muy distintos con estados de soldadura distintos.',
+        refs: [{ to: 'job-ewm', label: 'Ajustar parámetros en el EWM' }],
+      },
+      {
+        text:
+          'Pasa a modo AUTO para producción. Asegúrate de que no hay nadie dentro de la valla, lleva el override al 100 % (o al que pida la pieza), selecciona el programa con <PROGRAM SELECT> y pulsa CYCLE START. El robot ejecutará la secuencia HOME → P0 → arco ON en P1 → cordón hasta P3 → arco OFF → escape P4 → HOME, y se detendrá hasta el siguiente ciclo. Cualquier error de soldadura (E6502 fallo de arco, etc.) detiene el robot en el punto del fallo y obliga a investigar antes de seguir.',
+        refs: [{ to: 'teach-pendant', label: 'Modos TEACH / CHECK / AUTO' }],
+      },
+    ],
+    notes: [
+      'Regla AC / WS / WC / WE: AC = arco apagado (movimiento de aire), WS = inicio de arco, WC = continuación con arco ON, WE = fin de arco. Un cordón mínimo es WS → WE; con un punto intermedio, WS → WC → WE.',
+      'El estado de soldadura del WS, WC y WE debe ser el mismo dentro de un cordón salvo que quieras cambiar parámetros a mitad de soldadura (raro y normalmente desaconsejado en cordones cortos).',
+      'Solo el WE aplica tratamiento de cráter. Si quieres rellenar el cráter, configúralo en la base de datos de condiciones, no en el WE punto a punto.',
+      'Para añadir weaving al cordón, los datos de weaving se introducen en los datos auxiliares del WC y WE — el WS no acepta weaving. Procedimiento aparte.',
+      'Si necesitas modificar un punto ya grabado sin perder la instrucción, usa MOD (no REC). REC graba un paso nuevo; MOD actualiza el actual. Procedimiento aparte (REC vs MOD).',
+      'Las velocidades de auxiliares (9, 1 lento) son codificadas — son índices que se traducen a mm/s o cm/min en la configuración del controlador. La velocidad real del arco la fija el estado de soldadura (Weld Speed en cm/min), no la velocidad de auxiliares.',
+    ],
+    source:
+      'Arc Welding Operation Manual (Serie E) §5.6, §5.7 y §5.8 (especialmente §5.8.3 con la figura 5.1 y los 5 pasos de aprendizaje del cordón pg10).',
+  },
+  {
     id: 'weaving',
     title: 'Añadir weaving (oscilación) a un cordón',
     category: 'Soldadura',

@@ -69,7 +69,15 @@ const JOBS = [
     //   51   5.5.2 Tabla de interpolaciones (JOINT/LINEAR/CIRCULAR + AC/WS/AS)
     //   56   5.5.12 Datos de desplazamiento lateral (weaving en WC/WE)
     //   60   5.7.1 Flujo básico: figura P0→P3 de soldadura horizontal
+    //   61   5.7.2 Estado de soldadura — qué son datos auxiliares y estado
+    //   62   5.7.2.2 Tabla de tipos de condiciones de soldadura
     //   65   5.8.3 Figura 5.1 — P0..P5 con punto de escape
+    //   66   5.8.3 Figura 5.2 — pantalla del programa pg10 + tabla pasos
+    //   67   5.8.3 Paso 1 (P0) — jog + AC + Figura 5.3
+    //   68   5.8.3 Paso 2 (P1) — WS, ángulo soplete 45°
+    //   69   5.8.3 Paso 3 (P2) — WC con escape Z- en herramienta
+    //   70   5.8.3 Paso 4 (P3) — WE, cráter
+    //   71   5.8.3 Paso 5 (P4-P5) — AC + escape Z-
     //   77   6.2 Movimiento de weaving con soldadura desactivada
     //   78   Indicador "Weaving OFF" en pantalla cuando weld está disable
     //  213   Cap. 10 — Tabla de patrones estándar registrados (PN=1..5)
@@ -86,8 +94,8 @@ const JOBS = [
     //  306   Apéndice 3 — Triangular horizontal para ranura bisel único 22,5°
     //  312   Apéndice 3 — Triangular con paradas + aumento de corriente 20 % en extremos
     pages: [
-      46, 48, 49, 51, 56, 60, 65, 77, 78, 213, 216, 217,
-      219, 220, 227, 230, 233, 234, 235, 302, 306, 312,
+      46, 48, 49, 51, 56, 60, 61, 62, 65, 66, 67, 68, 69, 70, 71, 77, 78,
+      213, 216, 217, 219, 220, 227, 230, 233, 234, 235, 302, 306, 312,
     ],
   },
   {
