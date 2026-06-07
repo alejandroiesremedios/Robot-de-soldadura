@@ -15,6 +15,7 @@ const files = [
   '90203-1104DSB_Operation Manual (E series)_Spanish.pdf',
   'Touch_sensing.pdf',
   'wire_check.pdf',
+  'K-ROSET Instruction Manual_EN.pdf',
 ];
 
 await fs.mkdir(OUT, { recursive: true });

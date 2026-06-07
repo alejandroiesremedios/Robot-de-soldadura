@@ -77,6 +77,19 @@ const JOBS = [
     //  217   10.2 Relación frecuencia-ciclo + ejemplo PN=1
     pages: [46, 48, 49, 51, 56, 60, 65, 77, 78, 213, 216, 217],
   },
+  {
+    pdf: 'K-ROSET Instruction Manual_EN.pdf',
+    id: 'k_roset',
+    // Sección 4.1.1.2 Virtual Teach Pendant (VTP) — captura del TP virtual con
+    // panel de operación + hard keys, que es la imagen clara que falta en
+    // Fundamentos → Teach pendant.
+    // OJO: el PDF tiene 6 páginas de cubierta antes de empezar la numeración
+    // impresa, por lo que PDF page = printed page + 6.
+    //  163 (impresa 157)  4.1.1.2 Virtual Teach Pendant (VTP) — introducción
+    //  164 (impresa 158)  Position Change of Hard Key (captura del VTP)
+    //  165 (impresa 159)  Hard key display switching (modos del hard key)
+    pages: [163, 164, 165],
+  },
 ];
 
 const ONLY = process.argv.slice(2);

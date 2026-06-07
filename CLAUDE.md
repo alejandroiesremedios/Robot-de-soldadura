@@ -42,6 +42,7 @@ Listado maestro de procedimientos que deben existir en la app (pantalla Procedim
 ### Robot — uso avanzado del teach pendant
 
 - 🔵 Crear weaving / oscilación sobre un cordón (Arc Welding §5.5.12, §6.2, §10)
+- ✅ Weaving triangular para 3F y 3G ascendente (GMAW, acero, hilo Ø1,0) — PN=2, parámetros orientativos
 - ⬜ Programa de soldadura básico — AS / WS / WC / WE entre puntos (Arc Welding §4–§5)
 - ⬜ Dar de alta una entrada en la base de datos de condiciones de soldadura (Aux 0420) (Arc Welding)
 - ⬜ Crear / editar patrón especial de weaving (Aux 1404-11, opción) — **redactar con detalle extra** (Arc Welding §10.3–§10.4)
@@ -53,7 +54,7 @@ Listado maestro de procedimientos que deben existir en la app (pantalla Procedim
 
 Fuente: web oficial ewm-group.com (no hay PDF aportado todavía).
 
-- 🔵 Crear un programa dentro de un JOB (EWM web)
+- ✅ Crear un programa dentro de un JOB — explicado como **subsección de Fundamentos "JOB (EWM)"** (concepto + tabla de familias de JOBs disponibles + ejemplo PB/PF con 4 programas en mismo JOB). _Pendiente añadir capturas reales del panel Expert XQ 2.0 cuando se hagan en el taller._
 - ⬜ Modo Expert — estructura general de menús
 - ⬜ Cargar JOB desde el robot por número (interfaz Kawasaki ↔ EWM)
 - ⬜ Ajustar curva sinérgica (material / gas / diámetro de hilo)
@@ -100,6 +101,7 @@ _(El proyecto aún no tiene código. Se irá completando.)_
 - La información que el modelo no tenga sobre el robot/fuente se buscará en web; además el usuario aportará PDFs del robot.
 - **UI — botones en grupo**: cuando se crea una serie de botones (por ejemplo el menú principal o cualquier conjunto de acciones agrupadas), cada botón debe llevar un **color distinto**. Un grupo monocromo cansa la vista, todo se ve igual y se pierde la atención del usuario; los colores diferenciados dan jerarquía visual y ayudan a reconocer la opción de un vistazo.
 - **Contenidos siempre con imágenes**: el texto solo no basta. Todo procedimiento o sección de fundamentos debe ir acompañado de las imágenes/diagramas del PDF de referencia. Aplica también a contenidos futuros (no solo a los ya hechos).
+- **Push a GitHub — recordatorio proactivo**: nunca pushear/desplegar sin que el usuario lo pida, pero **sí preguntárselo proactivamente** cada cierto tiempo y tras avances importantes (procedimiento terminado, refactor cerrado, build verde tras un cambio grande, fin natural de un bloque de trabajo). Una sola pregunta corta, sin perseverar si dice que no.
 
 ## Metodología para poblar contenido (a aplicar a cada apartado)
 
@@ -152,6 +154,7 @@ Patrón ya validado en el procedimiento de **wire check** y en las secciones de 
 - **Códigos de error**: el usuario decidió no poblarlos todavía. Cuando dé luz verde, extraer del manual Serie E (§2.10 y §2.11) y de EWM.
 - **Configurar deploy a GitHub Pages**: crear repo en GitHub, conectar y publicar (script `npm run deploy` ya disponible con `gh-pages`). _No hacer push hasta que el usuario lo pida._
 - **Recopilar de la web de EWM/Kawasaki** lo que falte.
+- **Conectar Firebase** (cuenta `alejandrofuentes@iesremedios.es`) para los datos que la app necesite persistir/sincronizar. Nombre del proyecto Firebase: **"Robot de soldadura"** (mismo nombre que el repo). _No hacer nada todavía._ Cuando se aborde: (1) decidir primero qué datos van a Firebase (¿diario de incidencias para tenerlo en varios dispositivos?, ¿parámetros editables?, ¿códigos de error?) vs. qué se queda en IndexedDB local; (2) crear proyecto Firebase desde la consola web (firebase.google.com) con esa cuenta — no es un repo de GitHub, es un proyecto independiente en Google Cloud / Firebase; (3) habilitar Firestore y/o Auth según necesidad; (4) instalar SDK `firebase` y añadir config (claves vía variables de entorno `VITE_FIREBASE_*`, nunca commit directo).
 
 ## Cómo desarrollar / construir
 
@@ -177,6 +180,7 @@ Localización: raíz del proyecto. Texto extraído en `tools/extracted/*.txt` me
 2. **`90203-1036DSB_Arc Welding Operation Manual (E series)_Spanish.pdf`** (318 págs) — Manual de **soldadura por arco** para Serie E. Contiene: configuración de soplete, datos de estado de soldadura, base de datos de condiciones, detección de errores de soldadura (Aux 1411), linealización, JOB EWM, parámetros.
 3. **`Touch_sensing.pdf`** (8 págs) — Procedimiento específico de touch sensing (LARRAIOZ).
 4. **`wire_check.pdf`** (5 págs) — Procedimiento específico de wire check (LARRAIOZ).
+5. **`K-ROSET Instruction Manual_EN.pdf`** (411 págs, EN) — Manual del simulador **K-ROSET** de Kawasaki. Contiene capturas a color del **Virtual Teach Pendant (VTP)** (sección 4.1.1.2, impresa p.157-159 ≈ PDF 163-165) que son la mejor imagen disponible del TP. Útil también para layout, programación offline y simulación. **Ojo offset:** PDF page = printed page + 6.
 
 **Controlador identificado:** Kawasaki **Serie E** (los manuales son de esta serie). El robot es BA006L con controlador Serie E.
 

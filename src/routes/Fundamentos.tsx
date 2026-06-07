@@ -59,6 +59,13 @@ const SUBSECTIONS: Subsection[] = [
       'Movimiento oscilante de la antorcha para ensanchar el cordón. Parámetros: anchura, frecuencia y patrón.',
     to: '/fundamentos/weaving',
   },
+  {
+    id: 'job-ewm',
+    title: 'JOB (EWM Titan XQ 350 Plus)',
+    blurb:
+      'Qué es un JOB en la fuente, qué fija (material/gas/hilo/proceso) y qué se puede variar con los programas P0..P15 dentro del mismo JOB.',
+    to: '/fundamentos/job-ewm',
+  },
 ];
 
 export default function Fundamentos() {
@@ -205,9 +212,24 @@ export const FUNDAMENTOS_DETAILS: Record<string, Detail> = {
         </ul>
 
         <h3 className="font-semibold text-base text-slate-100">Apariencia del TP</h3>
+        <p className="text-slate-300">
+          El TP físico tiene dos zonas bien diferenciadas: la <strong>Operation Screen</strong> (pantalla
+          táctil donde aparecen menús, programas y datos del robot) y el <strong>Hard Key</strong>{' '}
+          (teclado de membrana fijo con las teclas más usadas). Esta captura, tomada del simulador
+          <strong> K-ROSET</strong>, muestra el teclado completo a color y en buena resolución:
+        </p>
+        <PdfFigure
+          src={pdfImage('k_roset', 164)}
+          caption="Vista del TP virtual del K-ROSET (idéntico al físico) con las dos zonas etiquetadas: Operation Screen arriba (táctil) y Hard Key abajo (teclado de membrana). Fuente: K-ROSET Instruction Manual §4.1.1.2."
+        />
+        <p className="text-slate-300">
+          Y por completar, el esquema técnico del Serie E con los elementos físicos del propio
+          mando (gatillos de hombre muerto, llave de bloqueo, seta de emergencia), que no se ven en
+          el simulador:
+        </p>
         <PdfFigure
           src={pdfImage('serie_e', 29)}
-          caption="Disposición del TP: pantalla, teclado de membrana, interruptor de bloque de enseñanza, interruptores de hombre muerto (gatillos) e interruptor de paro de emergencia (Serie E §2.3)."
+          caption="Disposición del TP físico: pantalla, teclado de membrana, interruptor de bloque de enseñanza, interruptores de hombre muerto (gatillos) e interruptor de paro de emergencia (Serie E §2.3)."
         />
 
         <h3 className="font-semibold text-base text-slate-100">Teclas principales</h3>
@@ -653,6 +675,278 @@ export const FUNDAMENTOS_DETAILS: Record<string, Detail> = {
       </div>
     ),
   },
+  'job-ewm': {
+    title: 'JOB (EWM Titan XQ 350 Plus)',
+    body: (
+      <div className="space-y-4 text-sm leading-relaxed">
+        <p className="text-slate-300">
+          Un <strong>JOB</strong> en la fuente <strong>EWM Titan XQ 350 Plus</strong> es una{' '}
+          <strong>receta de soldadura</strong> guardada en su memoria que define todo lo necesario
+          para soldar una combinación concreta. Al elegir esa combinación, la fuente carga internamente
+          una <strong>curva sinérgica</strong> calibrada en fábrica — la relación entre velocidad de
+          hilo, intensidad y tensión que mantiene el arco estable para ese caso. Esa curva{' '}
+          <em>es</em> el JOB.
+        </p>
+
+        <p className="text-slate-300">
+          La metáfora útil: el JOB es el <strong>"plato del menú"</strong> (ingredientes fijos =
+          material + gas + hilo + proceso). Dentro de cada plato puedes pedir{' '}
+          <strong>variaciones</strong> (más hecho, menos sal): eso son los{' '}
+          <strong>programas P0..P15</strong> dentro del JOB.
+        </p>
+
+        <JobDiagram />
+
+        <h3 className="font-semibold text-base text-slate-100">Qué fija el JOB (no se toca por programa)</h3>
+        <ul className="list-disc list-inside space-y-1 text-slate-200">
+          <li><strong>Proceso</strong>: MIG/MAG estándar, pulsado, ForceArc, ColdArc, rootArc, superPuls…</li>
+          <li><strong>Material base</strong>: acero al carbono, inoxidable, aluminio, CuSi…</li>
+          <li><strong>Gas de protección</strong>: M21, M20, M12, C1, I1…</li>
+          <li><strong>Diámetro de hilo</strong>: 0,8 / 1,0 / 1,2 / 1,6 mm.</li>
+          <li><strong>Curva sinérgica</strong>: lo que ata todo lo anterior y mantiene el arco estable.</li>
+        </ul>
+        <p className="text-slate-400 text-xs">
+          Si cambias cualquiera de esos cinco, cambias de JOB. No puedes "convertir" un JOB de acero
+          en uno de aluminio modificando parámetros.
+        </p>
+
+        <h3 className="font-semibold text-base text-slate-100">Qué puede variar entre programas P1..P15</h3>
+        <p className="text-slate-300">
+          Cada programa dentro de un mismo JOB es un <strong>preset de correcciones y punto de
+          trabajo</strong> sobre esa curva sinérgica. P0 es el modo manual (mando libre); P1..P15 son
+          recetas guardadas que se llaman desde el robot o el panel:
+        </p>
+        <div className="overflow-x-auto rounded-xl border border-slate-700/60">
+          <table className="w-full text-xs">
+            <thead className="bg-slate-800/60 text-slate-200">
+              <tr>
+                <th className="text-left px-3 py-2">Parámetro</th>
+                <th className="text-left px-3 py-2">Qué hace</th>
+                <th className="text-left px-3 py-2">Rango típico</th>
+              </tr>
+            </thead>
+            <tbody className="text-slate-200">
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>Velocidad de hilo (WFS)</strong></td>
+                <td className="px-3 py-2 align-top">
+                  Mueve el punto de operación a lo largo de la curva. Más WFS = más I y más U
+                  automáticamente.
+                </td>
+                <td className="px-3 py-2 align-top">Todo el rango útil del JOB (p. ej. 3-14 m/min)</td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>Corrección de tensión (U-corr)</strong></td>
+                <td className="px-3 py-2 align-top">
+                  Ajusta U respecto a lo que la sinergia te da, sin tocar I. Arco más largo (+) o más
+                  corto (−).
+                </td>
+                <td className="px-3 py-2 align-top">±3 V típico</td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>Dinámica de arco</strong></td>
+                <td className="px-3 py-2 align-top">Rigidez del arco (concentrado/blando).</td>
+                <td className="px-3 py-2 align-top">−9…+9 ó 0-100 según menú</td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>Corrección long. arco (pulsado)</strong></td>
+                <td className="px-3 py-2 align-top">Análogo a U-corr pero específico de pulsado.</td>
+                <td className="px-3 py-2 align-top">±30 % aprox.</td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>Pre-flow / Post-flow gas</strong></td>
+                <td className="px-3 py-2 align-top">Tiempo de gas antes y después del arco.</td>
+                <td className="px-3 py-2 align-top">0-20 s</td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>Slope arranque / cráter</strong></td>
+                <td className="px-3 py-2 align-top">
+                  Rampa de subida al iniciar y bajada para rellenar cráter al cerrar.
+                </td>
+                <td className="px-3 py-2 align-top">Tiempo + WFS objetivo</td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>Pulsado on/off</strong></td>
+                <td className="px-3 py-2 align-top">
+                  Conmutar estándar/pulsado dentro del mismo JOB si la fuente lo permite.
+                </td>
+                <td className="px-3 py-2 align-top">Sí / No</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="font-semibold text-base text-slate-100">Ejemplo: un mismo JOB, cuatro recetas</h3>
+        <p className="text-slate-300">
+          JOB de <em>acero al carbono · M21 · hilo Ø1,0</em>. Caso real: el mismo cordón en posición
+          PB (horizontal-vertical) y en PF (vertical ascendente), con raíz y relleno por posición:
+        </p>
+        <div className="overflow-x-auto rounded-xl border border-slate-700/60">
+          <table className="w-full text-xs">
+            <thead className="bg-slate-800/60 text-slate-200">
+              <tr>
+                <th className="text-left px-3 py-2">Programa</th>
+                <th className="text-left px-3 py-2">Caso</th>
+                <th className="text-left px-3 py-2">WFS</th>
+                <th className="text-left px-3 py-2">U-corr</th>
+                <th className="text-left px-3 py-2">Notas</th>
+              </tr>
+            </thead>
+            <tbody className="text-slate-200">
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2"><strong>P1</strong></td>
+                <td className="px-3 py-2">PB raíz</td>
+                <td className="px-3 py-2">7,5 m/min</td>
+                <td className="px-3 py-2">0</td>
+                <td className="px-3 py-2">Estándar o pulsado</td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2"><strong>P2</strong></td>
+                <td className="px-3 py-2">PB relleno</td>
+                <td className="px-3 py-2">9,5 m/min</td>
+                <td className="px-3 py-2">+1 V</td>
+                <td className="px-3 py-2">Estándar</td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2"><strong>P3</strong></td>
+                <td className="px-3 py-2">PF raíz</td>
+                <td className="px-3 py-2">4,5 m/min</td>
+                <td className="px-3 py-2">−1 V</td>
+                <td className="px-3 py-2">Pulsado bajo, weaving OFF</td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2"><strong>P4</strong></td>
+                <td className="px-3 py-2">PF relleno</td>
+                <td className="px-3 py-2">6 m/min</td>
+                <td className="px-3 py-2">0</td>
+                <td className="px-3 py-2">Pulsado, weaving ON</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="text-slate-300">
+          Una sola curva sinérgica, cuatro recetas. En el TP del robot llamas a la condición C1, C2,
+          C3 o C4 (Aux 0420 del Kawasaki) y cada una apunta a JOB X / Pn correspondiente.
+        </p>
+
+        <h3 className="font-semibold text-base text-slate-100">Lo que NO puedes hacer dentro del mismo JOB</h3>
+        <ul className="list-disc list-inside space-y-1 text-slate-200">
+          <li>Cambiar material / gas / hilo → necesitas otro JOB.</li>
+          <li>Sacar la WFS fuera del rango sinérgico del JOB (te dará warning de "fuera de curva").</li>
+          <li>
+            Forzar combinaciones I/U incoherentes con la curva (la U-corr tiene un margen limitado
+            justo para evitar esto).
+          </li>
+        </ul>
+
+        <h3 className="font-semibold text-base text-slate-100">JOBs disponibles en la fuente</h3>
+        <p className="text-slate-300">
+          La Titan XQ 350 Plus admite hasta <strong>510 JOBs</strong> en memoria. EWM precarga de
+          fábrica una biblioteca con los casos más comunes; los huecos restantes quedan libres para
+          que tú guardes los tuyos. La biblioteca de fábrica se organiza por{' '}
+          <strong>proceso × material × gas × diámetro de hilo</strong>:
+        </p>
+
+        <div className="overflow-x-auto rounded-xl border border-slate-700/60">
+          <table className="w-full text-xs">
+            <thead className="bg-slate-800/60 text-slate-200">
+              <tr>
+                <th className="text-left px-3 py-2">Familia</th>
+                <th className="text-left px-3 py-2">Material típico</th>
+                <th className="text-left px-3 py-2">Gas</th>
+                <th className="text-left px-3 py-2">Hilo Ø (mm)</th>
+                <th className="text-left px-3 py-2">Procesos habituales</th>
+              </tr>
+            </thead>
+            <tbody className="text-slate-200">
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>Acero al carbono</strong></td>
+                <td className="px-3 py-2 align-top">G3Si1, G4Si1 (ER70S-6)</td>
+                <td className="px-3 py-2 align-top">M21, M20, C1</td>
+                <td className="px-3 py-2 align-top">0,8 · 1,0 · 1,2</td>
+                <td className="px-3 py-2 align-top">
+                  Estándar, pulsado, <em>rootArc</em>, <em>ForceArc</em>, <em>ColdArc</em>
+                </td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>Inoxidable</strong></td>
+                <td className="px-3 py-2 align-top">CrNi 19/9, 308LSi, 316LSi</td>
+                <td className="px-3 py-2 align-top">M12, M11, Ar+2%CO₂</td>
+                <td className="px-3 py-2 align-top">0,8 · 1,0 · 1,2</td>
+                <td className="px-3 py-2 align-top">Estándar, pulsado, <em>superPuls</em></td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>Aluminio</strong></td>
+                <td className="px-3 py-2 align-top">AlMg5, AlMg4.5Mn, AlSi5</td>
+                <td className="px-3 py-2 align-top">I1 (Ar 100 %)</td>
+                <td className="px-3 py-2 align-top">1,0 · 1,2 · 1,6</td>
+                <td className="px-3 py-2 align-top">Pulsado, <em>superPuls</em>, <em>ColdArc</em></td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>CuSi / CuAl</strong></td>
+                <td className="px-3 py-2 align-top">CuSi3, CuAl8</td>
+                <td className="px-3 py-2 align-top">I1 (Ar 100 %)</td>
+                <td className="px-3 py-2 align-top">1,0 · 1,2</td>
+                <td className="px-3 py-2 align-top">
+                  Pulsado, <em>ColdArc</em> (soldeo MIG-brazing chapa galvanizada)
+                </td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>Hilo tubular / aportes especiales</strong></td>
+                <td className="px-3 py-2 align-top">Rutilo, básico, metal cored</td>
+                <td className="px-3 py-2 align-top">M21, C1</td>
+                <td className="px-3 py-2 align-top">1,2 · 1,4 · 1,6</td>
+                <td className="px-3 py-2 align-top">Estándar, pulsado</td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 align-top"><strong>JOBs de usuario</strong></td>
+                <td className="px-3 py-2 align-top">—</td>
+                <td className="px-3 py-2 align-top">—</td>
+                <td className="px-3 py-2 align-top">—</td>
+                <td className="px-3 py-2 align-top">
+                  Huecos libres para guardar combinaciones propias.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p className="text-slate-400 text-xs italic">
+          Importante: la tabla anterior es la estructura <em>típica</em> de la biblioteca de fábrica.
+          Los <strong>números de JOB exactos</strong> (qué JOB es cuál) dependen del firmware y de
+          los paquetes contratados con tu máquina. Para tener el listado real de tu Titan XQ 350 Plus,
+          confirmar en la propia fuente (ver paso siguiente) y completar aquí.
+        </p>
+
+        <h3 className="font-semibold text-base text-slate-100">Cómo ver el listado real desde la fuente</h3>
+        <ol className="list-decimal list-inside space-y-1 text-slate-200">
+          <li>Entrar en <strong>Modo Expert</strong> del panel de la Titan XQ.</li>
+          <li>
+            Menú <span className="font-mono text-slate-100">JOB → Lista de JOBs</span> (o equivalente en
+            tu firmware: la pantalla muestra número, material, gas, Ø hilo y proceso).
+          </li>
+          <li>
+            Anotar los JOBs precargados y los huecos libres. Esa lista es la "biblioteca real" de tu
+            máquina.
+          </li>
+        </ol>
+
+        <p className="text-slate-300">
+          Para soldar el robot con un JOB concreto, ese número es el que se le pasa a la fuente
+          desde el Kawasaki (ver{' '}
+          <Link to="/fundamentos/instrucciones-punto" className="text-indigo-300 underline">
+            Instrucciones del punto (WS/WC)
+          </Link>{' '}
+          y la base de datos de condiciones Aux 0420 del controlador).
+        </p>
+
+        <p className="text-xs text-slate-400 italic">
+          Fuentes: documentación EWM Expert XQ 2.0 (ewm-group.com / manualslib). Pendiente: capturas
+          de pantalla del menú real de la Titan XQ 350 Plus y completar la tabla con los JOBs
+          concretos de esta máquina.
+        </p>
+      </div>
+    ),
+  },
   'weaving': {
     title: 'Weaving (oscilación lateral)',
     body: (
@@ -776,6 +1070,99 @@ function PdfFigure({ src, caption }: { src: string; caption: string }) {
         {caption}
       </figcaption>
     </figure>
+  );
+}
+
+// Diagrama conceptual del JOB y sus 16 programas P0..P15.
+// Pensado para móvil: el bloque JOB arriba (lo que NO se toca por programa),
+// y debajo una rejilla de 16 tarjetas P0..P15 (lo que SÍ varía por programa).
+function JobDiagram() {
+  const programs: { id: string; label: string; example: string; highlight?: boolean }[] = [
+    { id: 'P0', label: 'Manual', example: 'WFS libre', highlight: true },
+    { id: 'P1', label: 'PB raíz', example: '7,5 m/min · 0 V' },
+    { id: 'P2', label: 'PB relleno', example: '9,5 m/min · +1 V' },
+    { id: 'P3', label: 'PF raíz', example: '4,5 m/min · −1 V' },
+    { id: 'P4', label: 'PF relleno', example: '6,0 m/min · 0 V' },
+    { id: 'P5', label: '—', example: 'libre' },
+    { id: 'P6', label: '—', example: 'libre' },
+    { id: 'P7', label: '—', example: 'libre' },
+    { id: 'P8', label: '—', example: 'libre' },
+    { id: 'P9', label: '—', example: 'libre' },
+    { id: 'P10', label: '—', example: 'libre' },
+    { id: 'P11', label: '—', example: 'libre' },
+    { id: 'P12', label: '—', example: 'libre' },
+    { id: 'P13', label: '—', example: 'libre' },
+    { id: 'P14', label: '—', example: 'libre' },
+    { id: 'P15', label: '—', example: 'libre' },
+  ];
+
+  return (
+    <div className="rounded-2xl border border-slate-700/60 bg-slate-900/40 p-3 sm:p-4 space-y-3">
+      {/* Cabecera: el JOB (lo invariante) */}
+      <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3">
+        <div className="text-[10px] uppercase tracking-wider text-emerald-300 font-semibold">
+          JOB nº __
+        </div>
+        <div className="font-semibold text-emerald-50 mt-0.5">
+          Acero al carbono · Gas M21 · Hilo Ø 1,0 mm · Pulsado
+        </div>
+        <div className="text-xs text-emerald-200/80 mt-1">
+          Curva sinérgica fija (la relación I–U–WFS calibrada por EWM). No se toca por programa.
+        </div>
+      </div>
+
+      {/* Flecha "contiene" */}
+      <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+        <span className="h-px flex-1 bg-slate-700" />
+        <span>contiene 16 programas</span>
+        <span className="h-px flex-1 bg-slate-700" />
+      </div>
+
+      {/* Rejilla de programas P0..P15 */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {programs.map((p) => (
+          <div
+            key={p.id}
+            className={
+              p.highlight
+                ? 'rounded-lg border border-amber-500/50 bg-amber-500/10 p-2'
+                : p.label === '—'
+                ? 'rounded-lg border border-slate-700/60 bg-slate-800/30 p-2 opacity-60'
+                : 'rounded-lg border border-indigo-500/40 bg-indigo-500/10 p-2'
+            }
+          >
+            <div
+              className={
+                p.highlight
+                  ? 'font-mono font-bold text-amber-200 text-sm'
+                  : p.label === '—'
+                  ? 'font-mono font-bold text-slate-400 text-sm'
+                  : 'font-mono font-bold text-indigo-200 text-sm'
+              }
+            >
+              {p.id}
+            </div>
+            <div
+              className={
+                p.label === '—'
+                  ? 'text-[11px] text-slate-500 leading-tight mt-0.5'
+                  : 'text-[11px] text-slate-200 leading-tight mt-0.5'
+              }
+            >
+              {p.label}
+            </div>
+            <div className="text-[10px] text-slate-400 leading-tight mt-0.5">{p.example}</div>
+          </div>
+        ))}
+      </div>
+
+      <p className="text-[11px] text-slate-400 leading-snug">
+        Cada programa ajusta <strong>WFS, corrección de tensión, dinámica, slope y gas</strong> sobre
+        la misma curva sinérgica. <span className="text-amber-300 font-semibold">P0</span> es el modo
+        manual; <span className="text-indigo-300 font-semibold">P1..P15</span> son recetas guardadas.
+        Las casillas en gris están libres para guardar más recetas.
+      </p>
+    </div>
   );
 }
 

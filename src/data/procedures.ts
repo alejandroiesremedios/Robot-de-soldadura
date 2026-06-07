@@ -327,6 +327,77 @@ export const PROCEDURES: Procedure[] = [
     source: 'Arc Welding Operation Manual (Serie E), §5.5.12, §6.2 y §10.',
   },
   {
+    id: 'weaving-3f-3g',
+    title: 'Weaving triangular para 3F y 3G ascendente (GMAW, acero, hilo Ø1,0)',
+    category: 'Soldadura',
+    summary:
+      'Configuración del weaving en patrón triangular (PN=2) para soldar acero al carbono en posición vertical ascendente, tanto en cordón en ángulo (3F) como a tope con chaflán en V (3G). Hilo macizo G3Si1 / ER70S-6 de Ø1,0 mm con gas M21 (Ar + 18% CO₂). El triángulo es el patrón clásico de "árbol de Navidad" para vertical ascendente: distribuye el calor, funde los cantos del chaflán y deja que la gravedad consolide el baño sin descolgarlo.',
+    cover: {
+      src: pdfImage('arc_welding', 213),
+      caption:
+        'Tabla de patrones estándar de weaving del controlador (Arc Welding §10.1.1). PN = 2 es el triangular.',
+    },
+    steps: [
+      {
+        text:
+          'Identifica bien la posición. Nomenclatura: 3F (AWS A3.0) = PF en ISO 6947 — cordón en ángulo (fillet) vertical ascendente, unión en T o L. 3G (AWS) = PF (ISO) para a tope con chaflán — chapas alineadas con preparación en V, soldadura ascendente. En ambas el cordón sube; lo que cambia es la geometría de la unión y, por tanto, los parámetros del weaving.',
+      },
+      {
+        text:
+          'Verifica el material y la preparación. Caso de partida: acero al carbono S235/S275, 10 mm de espesor. Para 3F: unión en T o L, sin preparación, garganta a = 6-8 mm en 1-2 pasadas. Para 3G: preparación en V 60°, talón 1-2 mm, separación de raíz 2-3 mm, tres pasadas (raíz + relleno + peinado). Consumibles para ambos: hilo macizo G3Si1 (equivalente ER70S-6) de Ø1,0 mm y gas M21 (Ar + 18 % CO₂).',
+      },
+      {
+        text:
+          'Elige el patrón triangular: PN = 2 en la tabla del controlador. Es el clásico zigzag con vértices arriba/abajo que va avanzando. Para vertical ascendente es la opción de partida estándar — concentra el calor en los laterales (al hacer pausa breve en los vértices) y consolida el centro al volver a pasar. Si tras pruebas el cordón pide más fusión simétrica en los cantos, se puede probar PN = 3 (triangular recíproco).',
+        image: pdfImage('arc_welding', 213),
+        caption:
+          'Patrón PN=2 (Triangular) entre los seis patrones de fábrica (Arc Welding §10.1.1).',
+        refs: [{ to: 'weaving', label: 'Qué es PN, WV y frecuencia' }],
+      },
+      {
+        text:
+          'Parámetros recomendados para 3F ascendente (cordón en ángulo, 1 pasada o raíz + cap). Pasada única / raíz: Patrón PN=2 · Anchura WV 4-6 mm · Frecuencia 1,0-1,5 Hz · Vel. hilo 5,5-6,5 m/min · U-corr −1 a 0 V · Vel. avance 8-12 cm/min · Modo pulsado · Stick-out 10-12 mm · Antorcha a 45° entre chapas, push 5-10°. Si haces segunda pasada (peinado para a ≥ 8 mm): aumentar WV a 6-8 mm y bajar frecuencia a 0,8-1,2 Hz, manteniendo el resto.',
+        refs: [
+          { to: 'instrucciones-punto', label: 'WS / WC / WE' },
+          { to: 'job-ewm', label: 'Programa del JOB en el EWM' },
+        ],
+      },
+      {
+        text:
+          'Parámetros recomendados para 3G ascendente (a tope V 60°, tres pasadas). 1) RAÍZ sin weaving: Vel. hilo 4,0-4,5 m/min · U-corr 0 V · Vel. avance ~10 cm/min · Modo short-arc o pulsado bajo · Stick-out 10-12 mm. Cordón recto, sin oscilar, para asegurar penetración en la separación de raíz. 2) RELLENO con weaving triangular: Patrón PN=2 · WV 8-10 mm · Frecuencia 0,8-1,2 Hz · Vel. hilo 6,0-7,0 m/min · U-corr −1 V · Vel. avance 6-9 cm/min · Modo pulsado. 3) PEINADO (cap) con triángulo más ancho para cubrir cantos: PN=2 · WV 10-14 mm (sobrepasar 1-2 mm cada borde del chaflán) · Frecuencia 0,7-1,0 Hz · Vel. hilo 6,5-7,5 m/min · Vel. avance 5-7 cm/min · Modo pulsado.',
+        refs: [
+          { to: 'instrucciones-punto', label: 'WS / WC / WE por pasada' },
+          { to: 'job-ewm', label: 'Programas P1/P2/P3 del JOB' },
+        ],
+      },
+      {
+        text:
+          'Configura el weaving en el TP. Con el cursor en el WC del cordón, abre "Weaving data" en los datos auxiliares e introduce los tres valores (PN=2, WV, frecuencia) según el caso. Repite en cada WC y en el WE de cierre. Si tu JOB del EWM tiene programas separados para raíz/relleno/peinado (recomendado en 3G), cada WS llama a su programa y el weaving se introduce sobre los WC/WE de esa pasada. El procedimiento completo de configuración paso a paso está en "Añadir weaving (oscilación) a un cordón".',
+        refs: [
+          { to: 'weaving', label: 'Procedimiento general de weaving' },
+          { to: 'teach-pendant', label: 'Mover cursor en el TP' },
+        ],
+      },
+      {
+        text:
+          'Prueba siempre en probeta antes de la pieza real. Solda una probeta del mismo material, espesor, posición y preparación. Mide: penetración (rotura o macro), garganta efectiva (3F), perfil del cordón sin mordeduras laterales (3G), ausencia de descuelgues en el centro. Si descuelga: bajar WV o subir frecuencia o subir velocidad de avance. Si los cantos no funden: subir WV o bajar frecuencia o subir corriente (más WFS). Si hay mordedura lateral: bajar U-corr o bajar WV.',
+        refs: [{ to: 'teach-pendant', label: 'Modo CHECK para validar trayectoria' }],
+      },
+      {
+        text:
+          'Calificación del procedimiento (WPS/WPQR). Estos valores son punto de partida orientativo, no un WPS calificado. Para trabajos sujetos a norma (presión, estructural, ferroviario, etc.) el procedimiento debe calificarse por ensayo según EN ISO 15614-1 (o ASME IX) con probeta, ensayos destructivos y emisión del WPQR. Una vez calificado se redacta el WPS definitivo y se ciñe a sus rangos.',
+      },
+    ],
+    notes: [
+      'Vertical ascendente con triángulo: la regla de oro es ir despacio. La vel. de avance baja (5-12 cm/min según pasada) es lo que permite que el baño se solidifique antes de descolgar.',
+      'Si el resultado con PN=2 no satisface tras varias probetas, considerar crear un patrón personalizado por Aux 1404-11 (opción "Special Pattern Weaving"). Tiene procedimiento aparte.',
+      'Pulsado vs short-arc: para vertical ascendente, pulsado da menos calor por unidad de longitud y mejor control del baño. En raíz, short-arc también vale por su penetración corta y controlada.',
+      'Recuerda: los valores tabulados asumen probeta limpia, sin pintura ni cascarilla. Una unión sucia exige más calor (mayor WFS) y arruina el cordón.',
+    ],
+    source:
+      'Arc Welding Operation Manual (Serie E) §5.5.12, §6.2, §10. Posiciones según AWS A3.0 / ISO 6947. Parámetros orientativos basados en práctica habitual GMAW con G3Si1 Ø1,0 + M21; calificación final por ensayo según EN ISO 15614-1.',
+  },
+  {
     id: 'cambio-hilo',
     title: 'Cambio de bobina de hilo',
     category: 'Mantenimiento',
