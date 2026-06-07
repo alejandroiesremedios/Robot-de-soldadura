@@ -149,6 +149,16 @@ Patrón ya validado en el procedimiento de **wire check** y en las secciones de 
 - Añadidos `tools/find-pdf-pages.mjs` (localiza páginas por contenido) y `tools/dump-pdf-pages.mjs` (vuelca texto plano por página) para preparar selecciones futuras.
 - `tools/render-pdf-pages.mjs` acepta filtro por id en argv (`node render-pdf-pages.mjs serie_e`) para no re-renderizar todo.
 
+### 2026-06-07
+
+- Nueva subsección **JOB (EWM)** en Fundamentos: concepto (metáfora del menú), tabla de qué fija el JOB vs qué fija el programa, ejemplo PB/PF con 4 programas (P1–P4) sobre el mismo JOB, lista de "lo que NO puedes hacer" y tabla de familias de JOBs disponibles en el Titan XQ 350 Plus (acero, inox, aluminio, CuSi/CuAl, tubular FCAW, JOBs de usuario). Añadido componente `JobDiagram` (Tailwind) con cabecera del JOB + rejilla 4×4 de programas P0..P15 (P0 manual, P1–P4 con recetas ejemplo, P5–P15 libres).
+- Añadido **K-ROSET Instruction Manual_EN.pdf** (manual del simulador de Kawasaki) como 5ª fuente. Detectado el offset `PDF page = printed page + 6` (6 páginas de cubierta) y documentado en `tools/render-pdf-pages.mjs`. Renderizadas las páginas 163–165 (impresas 157–159) con la captura del Virtual Teach Pendant a color.
+- Sección **Teach pendant** mejorada: imagen del VTP de K-ROSET (p.164) como visual principal — mucho más clara que los diagramas en gris del Serie E — con párrafos explicando las dos zonas (Operation Screen y Hard Key) antes de las figuras del Serie E.
+- Nuevo procedimiento **"Weaving triangular para 3F y 3G ascendente (GMAW, acero, hilo Ø1,0)"** en `src/data/procedures.ts`: cover con la tabla de patrones estándar (Arc Welding §10.1.1), 8 pasos (nomenclatura AWS/ISO, material/junta, selección de patrón PN=2, parámetros 3F, parámetros 3G por pasada raíz/relleno/cap, configuración en el TP, ensayos de prueba, calificación WPS por EN ISO 15614-1) y 4 notas. Hilo G3Si1/ER70S-6 Ø1,0 + gas M21 (Ar+18%CO₂). Marcado como ✅ en el inventario.
+- Pipeline PDF→PNG ampliado: `tools/extract-pdfs.mjs` ahora incluye K-ROSET (411 págs, 390 k chars); `tools/render-pdf-pages.mjs` con nuevo job `k_roset` (pages 163–165).
+- Build estándar OK (`npm run build`, 61 entries / 12,97 MiB precache). Standalone HTML (`Robot Soldadura.html`) regenerado por el watch en segundo plano. Tracking en git de `K-ROSET Instruction Manual_EN.pdf` y `src/assets/pdf/k_roset/` (consistente con los otros PDFs ya versionados).
+- Push a `main` (commit `9ee8881`) y `npm run deploy` → GitHub Pages publicado.
+
 ## Pendientes
 
 - **Códigos de error**: el usuario decidió no poblarlos todavía. Cuando dé luz verde, extraer del manual Serie E (§2.10 y §2.11) y de EWM.
