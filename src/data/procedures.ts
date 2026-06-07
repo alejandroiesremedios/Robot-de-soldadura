@@ -30,38 +30,6 @@ export type Procedure = {
 
 export const PROCEDURES: Procedure[] = [
   {
-    id: 'encendido',
-    title: 'Encendido del robot',
-    category: 'Robot',
-    summary:
-      'Procedimiento de encendido del controlador Serie E y activación de la alimentación a los motores.',
-    steps: [
-      'Comprobar que las setas de emergencia están desbloqueadas y que la zona del robot está despejada.',
-      'Encender el interruptor principal del armario del controlador.',
-      'Esperar al arranque completo del sistema y a que el TP (teach pendant) muestre la pantalla de operación.',
-      'Activar la alimentación a los motores: pulsar el botón MOTOR ON / ENABLE en el armario o en el TP.',
-      'Verificar que no hay errores activos en pantalla. Si los hay, anotarlos en el diario y consultar la sección Códigos de error.',
-    ],
-    notes: [
-      'Si tras encender no se activa la alimentación a motores, revisar circuito de emergencia (setas, valla, puerta de seguridad).',
-    ],
-    source: 'Manual de operaciones Serie E, §3.1',
-  },
-  {
-    id: 'apagado',
-    title: 'Apagado del robot',
-    category: 'Robot',
-    summary: 'Procedimiento ordenado de apagado del sistema.',
-    steps: [
-      'Llevar el robot a la posición de HOME desde el programa o en manual.',
-      'Pasar el modo a TEACH.',
-      'Desactivar la alimentación a los motores (MOTOR OFF).',
-      'Apagar el interruptor principal del armario.',
-      'Cerrar la llave de gas de protección y desconectar la alimentación del EWM si procede.',
-    ],
-    source: 'Manual de operaciones Serie E, §3.2',
-  },
-  {
     id: 'parada-emergencia',
     title: 'Parada de emergencia y recuperación',
     category: 'Robot',
@@ -250,6 +218,32 @@ export const PROCEDURES: Procedure[] = [
     source: 'Touch_sensing.pdf (LARRAIOZ Elektronika)',
   },
   {
+    id: 'job-ewm',
+    title: 'Crear un programa dentro de un JOB (EWM)',
+    category: 'Soldadura',
+    summary:
+      'Qué es un JOB del Titan XQ 350 Plus, qué es una curva sinérgica, y cómo guardar varios programas (P1..P15) dentro del mismo JOB para reutilizarlos desde el robot llamándolos por número.',
+    steps: [
+      'Entiende qué es un JOB. Un JOB es la "receta maestra" que fija el modo de soldadura y la curva sinérgica para una combinación concreta de material + gas + diámetro de hilo. Es como elegir un menú del día en un restaurante: cuando seleccionas un JOB, la fuente carga de golpe el modo de proceso (estándar, pulsado, forceArc, coldArc…), la curva sinérgica calibrada por EWM para esa combinación, los tiempos de pre-gas/post-gas, las rampas de arranque/cráter y las protecciones. Lo que SÍ cambia entre programas dentro del mismo JOB son los puntos de trabajo (WFS, corrección de tensión, dinámica, slope, gas). Lo que NO cambia es la curva sinérgica ni el modo de proceso.',
+      'Entiende qué es una curva sinérgica. La fuente EWM tiene una tabla precalibrada en fábrica que relaciona la velocidad de hilo (WFS, m/min) con la corriente (A) y la tensión (V) óptimas para ese material + gas + diámetro. Al ser "sinérgica" significa que con un único mando (la velocidad de hilo) la fuente ya elige la corriente y la tensión que tocan; tú solo retocas con la corrección de tensión (U-corr ±) si quieres un arco más corto o más largo. Cada JOB lleva pegada la curva sinérgica de su combinación; por eso cambiar de acero a aluminio no es cambiar de programa sino de JOB.',
+      'Localiza la familia de JOBs disponible en el Titan XQ 350 Plus. La memoria del Expert XQ 2.0 viene con familias preconfiguradas: acero al carbono SG2/SG3 con gas M21 (Ar+18%CO₂) en pulsado y estándar, inoxidable 308/316 con gas M12/M11, aluminio AlMg5/AlSi5 con Ar puro en pulsado, CuSi3/CuAl8 (brazing) con Ar, tubular FCAW rutilo/metálico con M21, y bloques de JOBs de usuario libres para que guardes tus propias recetas. Cada combinación ocupa varios números de JOB según el diámetro (Ø 0,8 / Ø 1,0 / Ø 1,2). Antes de crear programas, asegúrate de tener seleccionado el JOB correcto (material + gas + diámetro reales del puesto).',
+      'Selecciona el JOB en la fuente. En el panel Expert XQ 2.0: pulsa el botón de selección de JOB y gira la rueda hasta el número del JOB de tu combinación (por ejemplo, JOB nº __ para acero SG2 + M21 + Ø 1,0 mm pulsado). Confirma. La pantalla muestra el JOB activo y la curva sinérgica cargada. A partir de aquí, todos los cambios que hagas se guardan dentro de ese JOB.',
+      'Entiende la estructura de programas P0..P15 dentro del JOB. Cada JOB tiene 16 espacios: P0 es el modo MANUAL (los mandos físicos de la fuente fijan WFS y corrección de tensión en directo) y P1..P15 son recetas guardadas. Tú decides cuántas usas: para un acero en PB+PF con cuatro pasadas distintas, puedes usar P1=PB raíz, P2=PB relleno, P3=PF raíz, P4=PF relleno y dejar P5..P15 libres. El robot llamará al programa que necesite por número desde el dato auxiliar del WS de cada cordón.',
+      'Crea el primer programa P1. Con el JOB activo, entra al modo Expert (botón Expert XQ 2.0) y selecciona el espacio de programa P1. Ajusta los parámetros que diferencian esta receta del resto: velocidad de hilo (WFS, m/min) para el punto de trabajo deseado, corrección de tensión (U-corr, ±V) para acortar o alargar el arco respecto a la curva sinérgica, dinámica (kick del arco), slope de arranque/cráter si la pieza lo pide, modo de gas. La curva sinérgica del JOB no se toca — solo te mueves sobre ella con WFS y U-corr.',
+      'Guarda P1 dentro del JOB. Sigue la secuencia "Save program" del menú Expert (la concreta la indica el panel; suele ser pulsar Save → seleccionar nº de programa → confirmar). Verifica que la pantalla refleja "P1 guardado" y que al recargar P1 los valores son los que acabas de introducir.',
+      'Repite para P2, P3, P4… cada uno con su receta. Ejemplo para una unión a tope acero en posición PB+PF: P1 = PB raíz (WFS 7,5 m/min, U-corr 0 V), P2 = PB relleno (WFS 9,5 m/min, U-corr +1 V), P3 = PF raíz (WFS 4,5 m/min, U-corr −1 V, dinámica baja para no descolgar), P4 = PF relleno (WFS 6,0 m/min, U-corr 0 V). Los espacios P5..P15 quedan libres para añadir capa de peinado, otras posiciones o variantes del mismo JOB.',
+      'Llama el programa desde el robot. En el TP del Kawasaki, dentro del estado/condición de soldadura que vas a usar en el WS del cordón, configura el campo "JOB" con el número del JOB activo y el campo "Programa" con P1, P2, P3 o P4 según la pasada. La fuente recibe ese par (JOB nº + Pnº) por la interfaz robot↔EWM cuando el robot ejecuta el WS, y entrega exactamente los parámetros que guardaste en ese programa.',
+      'Verifica en banco antes de soldar la pieza real. Con probeta del mismo material, espesor y posición: ejecuta el cordón en modo CHECK con la soldadura HABILITADA y comprueba que la fuente arranca con los valores correctos (lectura de WFS y U en la pantalla del panel coincide con lo guardado). Si algo no encaja, edita el programa correspondiente (P1, P2…) en la fuente, no en el robot — un mismo programa puede dar resultados muy distintos retocando solo WFS y U-corr sin cambiar el JOB.',
+    ],
+    notes: [
+      'Lo que NO puedes hacer dentro de un mismo JOB: cambiar de material (de acero a aluminio), cambiar de gas (de M21 a Ar puro), cambiar de diámetro de hilo (de Ø 1,0 a Ø 1,2) ni saltar de pulsado a estándar/coldArc. Cualquiera de esos cambios obliga a seleccionar otro JOB.',
+      'La curva sinérgica es propiedad del JOB, no del programa. Por eso al cambiar de P1 a P2 dentro del mismo JOB la fuente no recalcula la curva — solo se mueve a otro punto de trabajo sobre la misma curva.',
+      'P0 es el modo MANUAL no sinérgico: los mandos físicos de la fuente fijan los parámetros en directo, sin curva. Útil para probar puntos rápidamente; no lo llama el robot porque no es una receta guardada.',
+      'Las capturas reales del panel Expert XQ 2.0 se añadirán cuando se hagan en el taller. Hasta entonces, este procedimiento se apoya en el manual EWM y en la descripción funcional del panel.',
+    ],
+    source: 'Web oficial ewm-group.com (Titan XQ 350 Plus). Capturas pendientes del panel Expert XQ 2.0.',
+  },
+  {
     id: 'programa-basico',
     title: 'Programa de soldadura básico — un cordón entre dos puntos (AC / WS / WC / WE)',
     category: 'Soldadura',
@@ -283,7 +277,7 @@ export const PROCEDURES: Procedure[] = [
         image: pdfImage('arc_welding', 61),
         caption:
           'Datos auxiliares vs. estado de soldadura (§5.7.2). Auxiliares = movimiento (velocidad, precisión, timer); estado = arco (velocidad de soldadura, corriente, tensión, weaving).',
-        refs: [{ to: 'job-ewm', label: 'Programa del JOB en el EWM' }],
+        refs: [{ to: 'estado-soldadura', label: 'Qué es un estado de soldadura' }],
       },
       {
         text:
@@ -359,7 +353,7 @@ export const PROCEDURES: Procedure[] = [
       {
         text:
           'Repite en CHECK con soldadura HABILITADA sobre probeta del mismo material, espesor y posición. Revisa: el arco arranca limpio en P1 (sin chisporroteo prolongado), el cordón es continuo sin interrupciones de P1 a P3, el cráter en P3 queda relleno (sin agujero ni grieta), la longitud y la anchura coinciden con lo esperado. Si algo no encaja, lo más rápido es ajustar el estado de soldadura (subir o bajar WFS, U-corr, velocidad) sin tocar el programa — un mismo programa puede dar resultados muy distintos con estados de soldadura distintos.',
-        refs: [{ to: 'job-ewm', label: 'Ajustar parámetros en el EWM' }],
+        refs: [{ to: 'estado-soldadura', label: 'Estado de soldadura' }],
       },
       {
         text:
@@ -380,10 +374,10 @@ export const PROCEDURES: Procedure[] = [
   },
   {
     id: 'weaving',
-    title: 'Añadir weaving (oscilación) a un cordón',
+    title: 'Añadir weaving (oscilación) a un cordón — usar un patrón estándar PN=1..5',
     category: 'Soldadura',
     summary:
-      'Convierte un cordón recto en oscilante para ensancharlo, repartir mejor el calor o rellenar un chaflán. Se hace eligiendo Anchura, Frecuencia y Patrón en los datos auxiliares de los puntos WC y WE.',
+      'Convierte un cordón recto en oscilante eligiendo Anchura, Frecuencia y uno de los 6 patrones estándar (Standard, PN=1..5) en los datos auxiliares de los puntos WC y WE. Para crear un patrón propio (PN=6..10, personalizado) ver el procedimiento "Crear patrón de weaving personalizado".',
     cover: {
       src: pdfImage('arc_welding', 216),
       caption:
@@ -401,7 +395,6 @@ export const PROCEDURES: Procedure[] = [
       {
         text:
           'Decide los tres parámetros antes de tocar el TP. Anchura WV (mm): cuánto abre el zigzag. Frecuencia (Hz): ondas por segundo (a más frecuencia, ondas más juntas). Patrón (PN): la forma de la oscilación. Para un cordón corriente de relleno, un buen punto de partida es PN = 1 (armónico simple con parada en ambos extremos), WV 2-4 mm y 1-2 Hz, pero conviene afinar con probetas.',
-        refs: [{ to: 'weaving', label: 'Qué significa cada parámetro' }],
       },
       {
         text:
@@ -409,6 +402,10 @@ export const PROCEDURES: Procedure[] = [
         image: pdfImage('arc_welding', 213),
         caption:
           'Tabla de los seis patrones estándar de weaving registrados en el robot (Arc Welding §10.1.1).',
+      },
+      {
+        text:
+          '¿NECESITAS UN PATRÓN QUE NO ESTÁ EN PN=1..5? Si la forma del cordón te pide un patrón que no es ninguno de los seis estándar (por ejemplo, triangular con paradas en los flancos para una unión a tope vertical ascendente, o un patrón con aumento de corriente en los vértices), tienes que crearte el tuyo en una de las posiciones libres PN=6..10. El paso a paso completo de cómo dibujarlo, rellenar la hoja de puntos y cargarlo por Aux 1404-11 está en el procedimiento "Crear patrón de weaving personalizado (especial, Aux 1404-11)". Cuando lo tengas guardado, vuelve aquí y úsalo como un PN más en los datos auxiliares del WC/WE.',
       },
       {
         text:
@@ -481,14 +478,13 @@ export const PROCEDURES: Procedure[] = [
         image: pdfImage('arc_welding', 213),
         caption:
           'Patrón PN=2 (Triangular) entre los seis patrones de fábrica (Arc Welding §10.1.1).',
-        refs: [{ to: 'weaving', label: 'Qué es PN, WV y frecuencia' }],
       },
       {
         text:
           'Parámetros recomendados para 3F ascendente (cordón en ángulo, 1 pasada o raíz + cap). Pasada única / raíz: Patrón PN=2 · Anchura WV 4-6 mm · Frecuencia 1,0-1,5 Hz · Vel. hilo 5,5-6,5 m/min · U-corr −1 a 0 V · Vel. avance 8-12 cm/min · Modo pulsado · Stick-out 10-12 mm · Antorcha a 45° entre chapas, push 5-10°. Si haces segunda pasada (peinado para a ≥ 8 mm): aumentar WV a 6-8 mm y bajar frecuencia a 0,8-1,2 Hz, manteniendo el resto.',
         refs: [
           { to: 'instrucciones-punto', label: 'WS / WC / WE' },
-          { to: 'job-ewm', label: 'Programa del JOB en el EWM' },
+          { to: 'estado-soldadura', label: 'Estado de soldadura' },
         ],
       },
       {
@@ -496,16 +492,13 @@ export const PROCEDURES: Procedure[] = [
           'Parámetros recomendados para 3G ascendente (a tope V 60°, tres pasadas). 1) RAÍZ sin weaving: Vel. hilo 4,0-4,5 m/min · U-corr 0 V · Vel. avance ~10 cm/min · Modo short-arc o pulsado bajo · Stick-out 10-12 mm. Cordón recto, sin oscilar, para asegurar penetración en la separación de raíz. 2) RELLENO con weaving triangular: Patrón PN=2 · WV 8-10 mm · Frecuencia 0,8-1,2 Hz · Vel. hilo 6,0-7,0 m/min · U-corr −1 V · Vel. avance 6-9 cm/min · Modo pulsado. 3) PEINADO (cap) con triángulo más ancho para cubrir cantos: PN=2 · WV 10-14 mm (sobrepasar 1-2 mm cada borde del chaflán) · Frecuencia 0,7-1,0 Hz · Vel. hilo 6,5-7,5 m/min · Vel. avance 5-7 cm/min · Modo pulsado.',
         refs: [
           { to: 'instrucciones-punto', label: 'WS / WC / WE por pasada' },
-          { to: 'job-ewm', label: 'Programas P1/P2/P3 del JOB' },
+          { to: 'estado-soldadura', label: 'Estado de soldadura por pasada' },
         ],
       },
       {
         text:
           'Configura el weaving en el TP. Con el cursor en el WC del cordón, abre "Weaving data" en los datos auxiliares e introduce los tres valores (PN=2, WV, frecuencia) según el caso. Repite en cada WC y en el WE de cierre. Si tu JOB del EWM tiene programas separados para raíz/relleno/peinado (recomendado en 3G), cada WS llama a su programa y el weaving se introduce sobre los WC/WE de esa pasada. El procedimiento completo de configuración paso a paso está en "Añadir weaving (oscilación) a un cordón".',
-        refs: [
-          { to: 'weaving', label: 'Procedimiento general de weaving' },
-          { to: 'teach-pendant', label: 'Mover cursor en el TP' },
-        ],
+        refs: [{ to: 'teach-pendant', label: 'Mover cursor en el TP' }],
       },
       {
         text:
@@ -528,7 +521,7 @@ export const PROCEDURES: Procedure[] = [
   },
   {
     id: 'weaving-especial',
-    title: 'Crear patrón especial de weaving (Aux 1404-11) — modificar tiempos y paradas en vértices',
+    title: 'Crear patrón de weaving personalizado (especial, Aux 1404-11) — modificar tiempos y paradas en vértices',
     category: 'Soldadura',
     summary:
       'Cuando los seis patrones de fábrica (Standard, PN=1..5) no dan la forma o el reparto de calor que la unión necesita, se crea un patrón especial en una de las posiciones libres PN=6..10. A diferencia de los estándar, en el patrón especial tú defines punto a punto cuánto % del ciclo dura cada tramo, dónde el soplete se queda parado (placa horizontal, placa vertical o centro) y cuánto sube/baja la corriente o la tensión en cada instante. Es la herramienta que pide una unión a tope en vertical ascendente: triángulo con paradas medidas en los flancos del chaflán para fundir bien los cantos y caída controlada hacia el centro para que el baño no descuelgue. Requiere la opción "Special Pattern Weaving" instalada (Aux 1404-11).',
@@ -544,7 +537,6 @@ export const PROCEDURES: Procedure[] = [
         image: pdfImage('arc_welding', 220),
         caption:
           'PN=3 estándar (triangular recíproco con parada en ambos extremos y centro). La idea de "parar en el vértice" ya está en los estándar; con el patrón especial decides tú el % de parada (Arc Welding §10.2).',
-        refs: [{ to: 'weaving', label: 'Recordar qué es PN, WV y frecuencia' }],
       },
       {
         text:
@@ -602,10 +594,7 @@ export const PROCEDURES: Procedure[] = [
       {
         text:
           'Paso 5 — Cargar en el robot por Aux 1404-11. En el TP: <AUX> → 1404 → 11 "Special Pattern Weaving". Elige el número de PN libre (6 a 10), introduce los puntos uno a uno con los valores de la hoja, y al final introduce los tiempos globales de parada en placa horizontal, placa vertical y centro (en %). Guarda. A partir de aquí el PN nuevo aparece en la lista junto a los estándar y se usa en los datos auxiliares del WC/WE exactamente igual que un PN de fábrica.',
-        refs: [
-          { to: 'weaving', label: 'Asignar el PN al WC/WE del cordón' },
-          { to: 'teach-pendant', label: 'Acceso a Aux desde el TP' },
-        ],
+        refs: [{ to: 'teach-pendant', label: 'Acceso a Aux desde el TP' }],
       },
       {
         text:
@@ -625,7 +614,6 @@ export const PROCEDURES: Procedure[] = [
       {
         text:
           'Verifica antes de soldar. En CHECK con soldadura deshabilitada y Aux 140409 → Weaving Motion at Weld Off = Enable, recorre el cordón a velocidad lenta y observa que la trayectoria coincide con la figura que dibujaste, que la anchura cabe en la ranura y que las paradas se producen en los puntos correctos. Si el robot da E1123 "Speed error jtXX", es que pides demasiada anchura en demasiado poco tiempo: baja la frecuencia o reduce la anchura. Si el patrón no arranca, revisa que el origen de aprendizaje del primer punto tiene amplitud 0 — si no, el ciclo no cierra y el robot se queja.',
-        refs: [{ to: 'weaving', label: 'Habilitar Weaving Motion at Weld Off' }],
       },
       {
         text:

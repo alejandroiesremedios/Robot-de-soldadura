@@ -23,6 +23,13 @@ const SUBSECTIONS: Subsection[] = [
     to: '/fundamentos/teach-pendant',
   },
   {
+    id: 'modos-robot',
+    title: 'Modos del robot y arranque/parada',
+    blurb:
+      'Selector TEACH/REPEAT/CHECK, override de velocidad, cómo encender, apagar y detener el robot.',
+    to: '/fundamentos/modos-robot',
+  },
+  {
     id: 'grabar-punto',
     title: 'Grabar (enseñar) un punto',
     blurb: 'Cómo registrar un punto en un programa: JOG, posición, instrucción, interpolación, REC.',
@@ -41,30 +48,30 @@ const SUBSECTIONS: Subsection[] = [
     to: '/fundamentos/instrucciones-punto',
   },
   {
+    id: 'estado-soldadura',
+    title: 'Estado de soldadura (Weld condition N.º)',
+    blurb:
+      'Receta de soldadura completa que se llama desde el TP (Aux 0420): corriente, tensión, JOB, gas, weaving.',
+    to: '/fundamentos/estado-soldadura',
+  },
+  {
     id: 'interpolaciones',
     title: 'Interpolaciones (JOINT / LINEAR)',
     blurb: 'Cómo se mueve el robot entre dos puntos: por eje a eje, en recta, en circular.',
     to: '/fundamentos/interpolaciones',
   },
   {
+    id: 'posiciones-soldadura',
+    title: 'Posiciones de soldadura (1F-4F · 1G-6G · PA-PG)',
+    blurb:
+      'Cómo se nombra cada posición de soldeo en AWS A3.0 e ISO 6947, y cómo influye en parámetros y weaving.',
+    to: '/fundamentos/posiciones-soldadura',
+  },
+  {
     id: 'touch-sensing-wire-check',
     title: 'Touch sensing y wire check',
     blurb: 'Para qué sirven, en qué se diferencian y dónde se configuran en el TP.',
     to: '/fundamentos/touch-sensing-wire-check',
-  },
-  {
-    id: 'weaving',
-    title: 'Weaving (oscilación lateral)',
-    blurb:
-      'Movimiento oscilante de la antorcha para ensanchar el cordón. Parámetros: anchura, frecuencia y patrón.',
-    to: '/fundamentos/weaving',
-  },
-  {
-    id: 'job-ewm',
-    title: 'JOB (EWM Titan XQ 350 Plus)',
-    blurb:
-      'Qué es un JOB en la fuente, qué fija (material/gas/hilo/proceso) y qué se puede variar con los programas P0..P15 dentro del mismo JOB.',
-    to: '/fundamentos/job-ewm',
   },
 ];
 
@@ -282,6 +289,119 @@ export const FUNDAMENTOS_DETAILS: Record<string, Detail> = {
 
         <p className="text-xs text-slate-400 italic">
           Fuente: 90203-1104DSB Operation Manual (Serie E), §2.3-§2.5.
+        </p>
+      </div>
+    ),
+  },
+  'modos-robot': {
+    title: 'Modos del robot y arranque/parada',
+    body: (
+      <div className="space-y-4 text-sm leading-relaxed">
+        <p className="text-slate-300">
+          El selector de modo del armario controlador decide <strong>cómo se mueve el robot</strong>{' '}
+          en cada momento. Los tres modos básicos son los mismos que aparecen en el teach pendant, pero
+          aquí los miramos desde el punto de vista de <em>qué se puede hacer</em> en cada uno y de{' '}
+          <em>cuánto corre</em> el robot.
+        </p>
+
+        <h3 className="font-semibold text-base text-slate-100">Los tres modos</h3>
+        <div className="space-y-2">
+          <InstrCard tag="TEACH" name="Enseñanza" color="sky">
+            Único modo en el que <strong>se puede mover el robot con el JOG</strong> del TP. Velocidad
+            limitada por norma (≤ 250 mm/s en el TCP). Necesitas pulsar el <strong>gatillo de hombre
+            muerto</strong> del TP para que los motores tengan corriente. Se usa para grabar puntos,
+            modificar puntos ya grabados y comprobar trayectorias en pequeño.
+          </InstrCard>
+          <InstrCard tag="REPEAT" name="Ejecución automática" color="emerald">
+            El robot ejecuta el programa <strong>a velocidad de producción</strong> sin gatillo de
+            hombre muerto. Solo se arranca y se para con el botón de ciclo. Es el modo de soldar de
+            verdad. Las puertas/vallas de seguridad deben estar cerradas.
+          </InstrCard>
+          <InstrCard tag="CHECK" name="Prueba paso a paso" color="amber">
+            Ejecuta el programa <strong>una instrucción cada vez</strong>, normalmente con la
+            soldadura desactivada, para comprobar trayectorias y puntos antes de soldar. Necesita
+            gatillo de hombre muerto como en TEACH.
+          </InstrCard>
+        </div>
+
+        <h3 className="font-semibold text-base text-slate-100">Override de velocidad</h3>
+        <p className="text-slate-300">
+          En cualquier modo el TP tiene un <strong>override</strong> (% sobre la velocidad programada).
+          Buena práctica: empezar siempre las pruebas en <strong>10-25 %</strong>, subir hasta{' '}
+          <strong>50 %</strong> cuando la trayectoria esté validada, y solo dejar el <strong>100 %</strong>{' '}
+          para producción. Las teclas de override están en el bloque del TP y suelen ser{' '}
+          <span className="font-mono">SPEED +</span> / <span className="font-mono">SPEED −</span>.
+        </p>
+
+        <h3 className="font-semibold text-base text-slate-100">Encendido</h3>
+        <ol className="list-decimal list-inside space-y-1 text-slate-200">
+          <li>
+            Comprobar que las setas de emergencia están desbloqueadas y la zona del robot
+            despejada.
+          </li>
+          <li>Encender el interruptor principal del armario del controlador.</li>
+          <li>
+            Esperar al arranque completo y a que el TP muestre la pantalla de operación.
+          </li>
+          <li>
+            Activar la alimentación a los motores: pulsar <strong>MOTOR ON / ENABLE</strong> en
+            el armario o en el TP.
+          </li>
+          <li>
+            Verificar que no hay errores activos. Si los hay, anotarlos en el diario y consultar
+            Códigos de error.
+          </li>
+        </ol>
+        <p className="text-xs text-slate-400">
+          Si tras encender no se activan los motores, revisar el circuito de emergencia (setas,
+          valla, puerta de seguridad).
+        </p>
+        <PdfFigure
+          src={pdfImage('serie_e', 94)}
+          caption="Procedimiento de encendido (Serie E §3.1): interruptor principal del armario → arranque del sistema → MOTOR ON."
+        />
+
+        <h3 className="font-semibold text-base text-slate-100">Apagado</h3>
+        <ol className="list-decimal list-inside space-y-1 text-slate-200">
+          <li>Llevar el robot a la posición de HOME desde el programa o en manual.</li>
+          <li>Pasar el modo a <strong>TEACH</strong>.</li>
+          <li>Desactivar la alimentación a los motores (<strong>MOTOR OFF</strong>).</li>
+          <li>Apagar el interruptor principal del armario.</li>
+          <li>
+            Cerrar la llave de gas de protección y desconectar la alimentación del EWM si
+            procede.
+          </li>
+        </ol>
+        <PdfFigure
+          src={pdfImage('serie_e', 95)}
+          caption="Procedimiento de desconexión (Serie E §3.2): llevar a HOME → modo TEACH → MOTOR OFF → interruptor principal."
+        />
+
+        <h3 className="font-semibold text-base text-slate-100">Cómo detener el robot</h3>
+        <p className="text-slate-300">
+          El manual recoge varios métodos según la urgencia y la situación. Resumen:
+        </p>
+        <ul className="list-disc list-inside space-y-1 text-slate-200">
+          <li>
+            <strong>Paro de ciclo (HOLD)</strong>: detiene el programa al final del paso actual. Para
+            pausar sin perder posición.
+          </li>
+          <li>
+            <strong>Soltar el gatillo de hombre muerto</strong> (en TEACH/CHECK): corta motores
+            inmediatamente. El robot queda donde está.
+          </li>
+          <li>
+            <strong>Seta de emergencia</strong>: paro de categoría 1 (frenado controlado + corte de
+            motores). Solo en peligro real, porque deja el ciclo abortado.
+          </li>
+        </ul>
+        <PdfFigure
+          src={pdfImage('serie_e', 96)}
+          caption="Métodos para detener el robot (Serie E §3.3): HOLD, soltar enable, seta de emergencia y corte de potencia."
+        />
+
+        <p className="text-xs text-slate-400 italic">
+          Fuente: 90203-1104DSB Operation Manual (Serie E), §3.1-§3.3.
         </p>
       </div>
     ),
@@ -534,6 +654,91 @@ export const FUNDAMENTOS_DETAILS: Record<string, Detail> = {
       </div>
     ),
   },
+  'estado-soldadura': {
+    title: 'Estado de soldadura (Weld condition N.º)',
+    body: (
+      <div className="space-y-4 text-sm leading-relaxed">
+        <p className="text-slate-300">
+          El <strong>estado de soldadura</strong> (en el manual, <em>welding condition</em> y en pantalla
+          "Condition N.º") es una <strong>receta completa</strong> de soldadura guardada en el
+          controlador del robot, llamada con un <strong>número</strong> desde las instrucciones{' '}
+          <span className="chip bg-emerald-500/25 text-emerald-100 border border-emerald-400/40 mr-1">WS</span>
+          ,{' '}
+          <span className="chip bg-amber-500/25 text-amber-100 border border-amber-400/40 mr-1">WC</span>{' '}
+          y{' '}
+          <span className="chip bg-rose-500/25 text-rose-100 border border-rose-400/40 mr-1">WE</span>{' '}
+          del programa.
+        </p>
+
+        <p className="text-slate-300">
+          No confundir con el JOB de la fuente. El{' '}
+          <Link to="/procedimientos/job-ewm" className="text-indigo-300 underline">
+            JOB
+          </Link>{' '}
+          es la receta dentro del EWM; el <strong>estado/condición de soldadura</strong> es la receta
+          que guarda el <em>robot</em> y que apunta a ese JOB (y al programa P1..P15) además de a otros
+          parámetros del cordón.
+        </p>
+
+        <h3 className="font-semibold text-base text-slate-100">Qué contiene un estado de soldadura</h3>
+        <p className="text-slate-300">
+          Cada estado lleva los datos típicos de un punto WS/WC/WE: tensión y/o corriente objetivo,
+          velocidad de soldeo, JOB EWM al que llama, datos de gas y datos opcionales de weaving. La
+          tabla del manual los clasifica por tipo de condición:
+        </p>
+        <PdfFigure
+          src={pdfImage('arc_welding', 62)}
+          caption="Tipos de condiciones de soldadura disponibles (Arc Welding §5.7.2.2): WS, WC, WE, condición común y condición de retake."
+        />
+
+        <h3 className="font-semibold text-base text-slate-100">Datos auxiliares vs datos de estado</h3>
+        <p className="text-slate-300">
+          El manual diferencia <strong>"datos auxiliares"</strong> (los que se introducen en la línea
+          del punto: velocidad, precisión, pequeñas correcciones) de los <strong>"datos de estado"</strong>{' '}
+          (los que viven en la base de datos de condiciones, llamados por número). Lo serio (tensión,
+          corriente, JOB) está en los datos de estado: así un mismo número de condición se reutiliza
+          en muchos cordones.
+        </p>
+        <PdfFigure
+          src={pdfImage('arc_welding', 61)}
+          caption="Estado de soldadura: distinción entre datos auxiliares (en el punto) y datos de estado (en base de datos) — Arc Welding §5.7.2."
+        />
+
+        <h3 className="font-semibold text-base text-slate-100">Dónde se da de alta / edita</h3>
+        <p className="text-slate-300">
+          La base de datos de condiciones está en{' '}
+          <span className="font-mono text-slate-100">AUX 0420 — Base de datos de condiciones de soldadura</span>.
+          Se entra desde la pantalla principal del TP con{' '}
+          <span className="font-mono">AUX → 04 Arc Weld → 20 Welding Condition DB</span>. Allí se
+          crean o se editan las recetas C1, C2, C3… que después se llaman por número desde el programa.
+        </p>
+
+        <h3 className="font-semibold text-base text-slate-100">Cómo se usan en el programa</h3>
+        <p className="text-slate-300">
+          En la línea de un punto WS/WC/WE se rellena el campo{' '}
+          <span className="font-mono text-slate-100">Cond N.º</span> con el número de la condición.
+          Ejemplo de programa con dos cordones (raíz con C1, relleno con C2):
+        </p>
+        <pre className="text-xs bg-slate-900/60 p-3 rounded-lg overflow-x-auto text-slate-200">
+{`1 AC JOINT  2 1 0
+2 AC LINEAR 2 1 0
+3 WS LINEAR 2 1 0  Cond 1
+4 WC LINEAR 2 1 0  Cond 1
+5 WE LINEAR 2 1 0  Cond 1
+6 AC LINEAR 2 1 0
+7 WS LINEAR 2 1 0  Cond 2
+8 WC LINEAR 2 1 0  Cond 2
+9 WE LINEAR 2 1 0  Cond 2
+10 AC JOINT 2 1 0`}
+        </pre>
+
+        <p className="text-xs text-slate-400 italic">
+          Fuente: 90203-1036DSB Arc Welding Operation Manual (Serie E), §5.7.2 — Estado de soldadura;
+          AUX 0420 — Base de datos de condiciones de soldadura.
+        </p>
+      </div>
+    ),
+  },
   'interpolaciones': {
     title: 'Interpolaciones',
     body: (
@@ -617,6 +822,151 @@ export const FUNDAMENTOS_DETAILS: Record<string, Detail> = {
       </div>
     ),
   },
+  'posiciones-soldadura': {
+    title: 'Posiciones de soldadura',
+    body: (
+      <div className="space-y-4 text-sm leading-relaxed">
+        <p className="text-slate-300">
+          La <strong>posición de soldeo</strong> es la orientación de la junta y el sentido del cordón
+          respecto a la gravedad. La nomenclatura es <strong>normativa</strong> — se usa en WPS, en
+          calificaciones de soldador y al elegir parámetros en la fuente — y hay dos sistemas
+          equivalentes:
+        </p>
+        <ul className="list-disc list-inside space-y-1 text-slate-200">
+          <li>
+            <strong>AWS A3.0 / ASME IX</strong>: número + letra. La letra dice si es ángulo
+            (<strong>F</strong>illet) o tope (<strong>G</strong>roove); el número, la orientación
+            (1 = plano, 4 = bajo techo).
+          </li>
+          <li>
+            <strong>ISO 6947</strong>: dos letras (PA, PB…). Es la norma usada en Europa y en los
+            certificados EN ISO 9606 / 15614.
+          </li>
+        </ul>
+        <p className="text-slate-300">
+          Las dos normas describen las <em>mismas</em> posiciones físicas, solo cambia el código. La
+          fuente EWM y el robot Kawasaki se ajustan igual — lo que cambia con la posición son los{' '}
+          <strong>parámetros</strong> (más fríos en vertical y bajo techo) y la necesidad de{' '}
+          <strong>weaving</strong> (sí en 3F/3G PF, no en 1F/1G PA salvo ranura ancha).
+        </p>
+
+        <PositionsDiagram />
+
+        <h3 className="font-semibold text-base text-slate-100">Tabla de equivalencias</h3>
+        <div className="overflow-x-auto rounded-xl border border-slate-700/60">
+          <table className="w-full text-xs">
+            <thead className="bg-slate-800/60 text-slate-200">
+              <tr>
+                <th className="text-left px-3 py-2">AWS (ángulo)</th>
+                <th className="text-left px-3 py-2">AWS (tope)</th>
+                <th className="text-left px-3 py-2">ISO 6947</th>
+                <th className="text-left px-3 py-2">Descripción</th>
+              </tr>
+            </thead>
+            <tbody className="text-slate-200">
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 font-mono">1F</td>
+                <td className="px-3 py-2 font-mono">1G</td>
+                <td className="px-3 py-2 font-mono">PA</td>
+                <td className="px-3 py-2">
+                  <strong>Plana</strong> (downhand). Cordón hacia abajo, pieza horizontal. La más fácil.
+                </td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 font-mono">2F</td>
+                <td className="px-3 py-2 font-mono">2G</td>
+                <td className="px-3 py-2 font-mono">PB · PC</td>
+                <td className="px-3 py-2">
+                  <strong>Horizontal-vertical</strong>. PB = ángulo en garganta vertical (eje cordón
+                  horizontal); PC = tope con la chapa vertical y cordón horizontal.
+                </td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 font-mono">3F</td>
+                <td className="px-3 py-2 font-mono">3G</td>
+                <td className="px-3 py-2 font-mono">PF · PG</td>
+                <td className="px-3 py-2">
+                  <strong>Vertical</strong>. PF = ascendente (soldando hacia arriba); PG = descendente
+                  (soldando hacia abajo).
+                </td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 font-mono">4F</td>
+                <td className="px-3 py-2 font-mono">4G</td>
+                <td className="px-3 py-2 font-mono">PD · PE</td>
+                <td className="px-3 py-2">
+                  <strong>Bajo techo</strong>. PE = totalmente sobre cabeza; PD = cornisa con chapa
+                  horizontal y cordón por debajo.
+                </td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 font-mono">—</td>
+                <td className="px-3 py-2 font-mono">5G</td>
+                <td className="px-3 py-2 font-mono">PH · PJ</td>
+                <td className="px-3 py-2">
+                  <strong>Tubería con eje horizontal fijo</strong>: el soldador recorre las cuatro
+                  posiciones a lo largo del cordón (plana, vertical, bajo techo). PH = ascendente,
+                  PJ = descendente.
+                </td>
+              </tr>
+              <tr className="border-t border-slate-700/40">
+                <td className="px-3 py-2 font-mono">—</td>
+                <td className="px-3 py-2 font-mono">6G</td>
+                <td className="px-3 py-2 font-mono">H-L045</td>
+                <td className="px-3 py-2">
+                  <strong>Tubería inclinada 45°</strong>. La posición más exigente — calificación de
+                  soldador "all-position".
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="font-semibold text-base text-slate-100">Cómo afecta a parámetros y al programa</h3>
+        <ul className="list-disc list-inside space-y-1 text-slate-200">
+          <li>
+            <strong>Plana (PA / 1F-1G)</strong>: baño líquido grande, parámetros altos, poco o nada de
+            weaving. Receta más rápida.
+          </li>
+          <li>
+            <strong>Horizontal-vertical (PB / 2F)</strong>: ligera tendencia a caer hacia abajo;
+            ángulo de antorcha y velocidad bien controlados.
+          </li>
+          <li>
+            <strong>Vertical ascendente (PF / 3F-3G)</strong>: baño contra gravedad. Parámetros bajos
+            (5-8 m/min hilo Ø1,0), <strong>weaving triangular</strong> (PN=2) o trapezoidal para
+            sujetar el baño. Es donde más se nota el patrón de oscilación.
+          </li>
+          <li>
+            <strong>Vertical descendente (PG / 3G)</strong>: parámetros más altos y velocidad alta —
+            pero solo con procesos optimizados (ColdArc, rootArc) porque el baño tiende a adelantar
+            al arco.
+          </li>
+          <li>
+            <strong>Bajo techo (PD-PE / 4F-4G)</strong>: parámetros bajos, arco muy controlado
+            (pulsado o ColdArc). Riesgo alto de salpicaduras.
+          </li>
+        </ul>
+
+        <h3 className="font-semibold text-base text-slate-100">Norma de referencia</h3>
+        <ul className="list-disc list-inside space-y-1 text-slate-200">
+          <li>
+            <strong>AWS A3.0M/A3.0 — Standard Welding Terms and Definitions</strong> (define 1F-4F,
+            1G-6G).
+          </li>
+          <li>
+            <strong>ISO 6947:2019 — Welding and allied processes — Welding positions</strong> (define
+            PA, PB, PC, PD, PE, PF, PG, PH, PJ).
+          </li>
+        </ul>
+        <p className="text-slate-400 text-xs italic">
+          En la documentación interna de esta célula recomendamos indicar siempre <strong>las dos
+          nomenclaturas</strong> (ej. "3F (PF, vertical ascendente)") para evitar confusión con quien
+          trabaje en planta.
+        </p>
+      </div>
+    ),
+  },
   'touch-sensing-wire-check': {
     title: 'Touch sensing y wire check',
     body: (
@@ -675,390 +1025,6 @@ export const FUNDAMENTOS_DETAILS: Record<string, Detail> = {
       </div>
     ),
   },
-  'job-ewm': {
-    title: 'JOB (EWM Titan XQ 350 Plus)',
-    body: (
-      <div className="space-y-4 text-sm leading-relaxed">
-        <p className="text-slate-300">
-          Un <strong>JOB</strong> en la fuente <strong>EWM Titan XQ 350 Plus</strong> es una{' '}
-          <strong>receta de soldadura</strong> guardada en su memoria que define todo lo necesario
-          para soldar una combinación concreta. Al elegir esa combinación, la fuente carga internamente
-          una <strong>curva sinérgica</strong> calibrada en fábrica — la relación entre velocidad de
-          hilo, intensidad y tensión que mantiene el arco estable para ese caso. Esa curva{' '}
-          <em>es</em> el JOB.
-        </p>
-
-        <p className="text-slate-300">
-          La metáfora útil: el JOB es el <strong>"plato del menú"</strong> (ingredientes fijos =
-          material + gas + hilo + proceso). Dentro de cada plato puedes pedir{' '}
-          <strong>variaciones</strong> (más hecho, menos sal): eso son los{' '}
-          <strong>programas P0..P15</strong> dentro del JOB.
-        </p>
-
-        <JobDiagram />
-
-        <h3 className="font-semibold text-base text-slate-100">Qué fija el JOB (no se toca por programa)</h3>
-        <ul className="list-disc list-inside space-y-1 text-slate-200">
-          <li><strong>Proceso</strong>: MIG/MAG estándar, pulsado, ForceArc, ColdArc, rootArc, superPuls…</li>
-          <li><strong>Material base</strong>: acero al carbono, inoxidable, aluminio, CuSi…</li>
-          <li><strong>Gas de protección</strong>: M21, M20, M12, C1, I1…</li>
-          <li><strong>Diámetro de hilo</strong>: 0,8 / 1,0 / 1,2 / 1,6 mm.</li>
-          <li><strong>Curva sinérgica</strong>: lo que ata todo lo anterior y mantiene el arco estable.</li>
-        </ul>
-        <p className="text-slate-400 text-xs">
-          Si cambias cualquiera de esos cinco, cambias de JOB. No puedes "convertir" un JOB de acero
-          en uno de aluminio modificando parámetros.
-        </p>
-
-        <h3 className="font-semibold text-base text-slate-100">Qué puede variar entre programas P1..P15</h3>
-        <p className="text-slate-300">
-          Cada programa dentro de un mismo JOB es un <strong>preset de correcciones y punto de
-          trabajo</strong> sobre esa curva sinérgica. P0 es el modo manual (mando libre); P1..P15 son
-          recetas guardadas que se llaman desde el robot o el panel:
-        </p>
-        <div className="overflow-x-auto rounded-xl border border-slate-700/60">
-          <table className="w-full text-xs">
-            <thead className="bg-slate-800/60 text-slate-200">
-              <tr>
-                <th className="text-left px-3 py-2">Parámetro</th>
-                <th className="text-left px-3 py-2">Qué hace</th>
-                <th className="text-left px-3 py-2">Rango típico</th>
-              </tr>
-            </thead>
-            <tbody className="text-slate-200">
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>Velocidad de hilo (WFS)</strong></td>
-                <td className="px-3 py-2 align-top">
-                  Mueve el punto de operación a lo largo de la curva. Más WFS = más I y más U
-                  automáticamente.
-                </td>
-                <td className="px-3 py-2 align-top">Todo el rango útil del JOB (p. ej. 3-14 m/min)</td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>Corrección de tensión (U-corr)</strong></td>
-                <td className="px-3 py-2 align-top">
-                  Ajusta U respecto a lo que la sinergia te da, sin tocar I. Arco más largo (+) o más
-                  corto (−).
-                </td>
-                <td className="px-3 py-2 align-top">±3 V típico</td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>Dinámica de arco</strong></td>
-                <td className="px-3 py-2 align-top">Rigidez del arco (concentrado/blando).</td>
-                <td className="px-3 py-2 align-top">−9…+9 ó 0-100 según menú</td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>Corrección long. arco (pulsado)</strong></td>
-                <td className="px-3 py-2 align-top">Análogo a U-corr pero específico de pulsado.</td>
-                <td className="px-3 py-2 align-top">±30 % aprox.</td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>Pre-flow / Post-flow gas</strong></td>
-                <td className="px-3 py-2 align-top">Tiempo de gas antes y después del arco.</td>
-                <td className="px-3 py-2 align-top">0-20 s</td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>Slope arranque / cráter</strong></td>
-                <td className="px-3 py-2 align-top">
-                  Rampa de subida al iniciar y bajada para rellenar cráter al cerrar.
-                </td>
-                <td className="px-3 py-2 align-top">Tiempo + WFS objetivo</td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>Pulsado on/off</strong></td>
-                <td className="px-3 py-2 align-top">
-                  Conmutar estándar/pulsado dentro del mismo JOB si la fuente lo permite.
-                </td>
-                <td className="px-3 py-2 align-top">Sí / No</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <h3 className="font-semibold text-base text-slate-100">Ejemplo: un mismo JOB, cuatro recetas</h3>
-        <p className="text-slate-300">
-          JOB de <em>acero al carbono · M21 · hilo Ø1,0</em>. Caso real: el mismo cordón en posición
-          PB (horizontal-vertical) y en PF (vertical ascendente), con raíz y relleno por posición:
-        </p>
-        <div className="overflow-x-auto rounded-xl border border-slate-700/60">
-          <table className="w-full text-xs">
-            <thead className="bg-slate-800/60 text-slate-200">
-              <tr>
-                <th className="text-left px-3 py-2">Programa</th>
-                <th className="text-left px-3 py-2">Caso</th>
-                <th className="text-left px-3 py-2">WFS</th>
-                <th className="text-left px-3 py-2">U-corr</th>
-                <th className="text-left px-3 py-2">Notas</th>
-              </tr>
-            </thead>
-            <tbody className="text-slate-200">
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2"><strong>P1</strong></td>
-                <td className="px-3 py-2">PB raíz</td>
-                <td className="px-3 py-2">7,5 m/min</td>
-                <td className="px-3 py-2">0</td>
-                <td className="px-3 py-2">Estándar o pulsado</td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2"><strong>P2</strong></td>
-                <td className="px-3 py-2">PB relleno</td>
-                <td className="px-3 py-2">9,5 m/min</td>
-                <td className="px-3 py-2">+1 V</td>
-                <td className="px-3 py-2">Estándar</td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2"><strong>P3</strong></td>
-                <td className="px-3 py-2">PF raíz</td>
-                <td className="px-3 py-2">4,5 m/min</td>
-                <td className="px-3 py-2">−1 V</td>
-                <td className="px-3 py-2">Pulsado bajo, weaving OFF</td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2"><strong>P4</strong></td>
-                <td className="px-3 py-2">PF relleno</td>
-                <td className="px-3 py-2">6 m/min</td>
-                <td className="px-3 py-2">0</td>
-                <td className="px-3 py-2">Pulsado, weaving ON</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p className="text-slate-300">
-          Una sola curva sinérgica, cuatro recetas. En el TP del robot llamas a la condición C1, C2,
-          C3 o C4 (Aux 0420 del Kawasaki) y cada una apunta a JOB X / Pn correspondiente.
-        </p>
-
-        <h3 className="font-semibold text-base text-slate-100">Lo que NO puedes hacer dentro del mismo JOB</h3>
-        <ul className="list-disc list-inside space-y-1 text-slate-200">
-          <li>Cambiar material / gas / hilo → necesitas otro JOB.</li>
-          <li>Sacar la WFS fuera del rango sinérgico del JOB (te dará warning de "fuera de curva").</li>
-          <li>
-            Forzar combinaciones I/U incoherentes con la curva (la U-corr tiene un margen limitado
-            justo para evitar esto).
-          </li>
-        </ul>
-
-        <h3 className="font-semibold text-base text-slate-100">JOBs disponibles en la fuente</h3>
-        <p className="text-slate-300">
-          La Titan XQ 350 Plus admite hasta <strong>510 JOBs</strong> en memoria. EWM precarga de
-          fábrica una biblioteca con los casos más comunes; los huecos restantes quedan libres para
-          que tú guardes los tuyos. La biblioteca de fábrica se organiza por{' '}
-          <strong>proceso × material × gas × diámetro de hilo</strong>:
-        </p>
-
-        <div className="overflow-x-auto rounded-xl border border-slate-700/60">
-          <table className="w-full text-xs">
-            <thead className="bg-slate-800/60 text-slate-200">
-              <tr>
-                <th className="text-left px-3 py-2">Familia</th>
-                <th className="text-left px-3 py-2">Material típico</th>
-                <th className="text-left px-3 py-2">Gas</th>
-                <th className="text-left px-3 py-2">Hilo Ø (mm)</th>
-                <th className="text-left px-3 py-2">Procesos habituales</th>
-              </tr>
-            </thead>
-            <tbody className="text-slate-200">
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>Acero al carbono</strong></td>
-                <td className="px-3 py-2 align-top">G3Si1, G4Si1 (ER70S-6)</td>
-                <td className="px-3 py-2 align-top">M21, M20, C1</td>
-                <td className="px-3 py-2 align-top">0,8 · 1,0 · 1,2</td>
-                <td className="px-3 py-2 align-top">
-                  Estándar, pulsado, <em>rootArc</em>, <em>ForceArc</em>, <em>ColdArc</em>
-                </td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>Inoxidable</strong></td>
-                <td className="px-3 py-2 align-top">CrNi 19/9, 308LSi, 316LSi</td>
-                <td className="px-3 py-2 align-top">M12, M11, Ar+2%CO₂</td>
-                <td className="px-3 py-2 align-top">0,8 · 1,0 · 1,2</td>
-                <td className="px-3 py-2 align-top">Estándar, pulsado, <em>superPuls</em></td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>Aluminio</strong></td>
-                <td className="px-3 py-2 align-top">AlMg5, AlMg4.5Mn, AlSi5</td>
-                <td className="px-3 py-2 align-top">I1 (Ar 100 %)</td>
-                <td className="px-3 py-2 align-top">1,0 · 1,2 · 1,6</td>
-                <td className="px-3 py-2 align-top">Pulsado, <em>superPuls</em>, <em>ColdArc</em></td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>CuSi / CuAl</strong></td>
-                <td className="px-3 py-2 align-top">CuSi3, CuAl8</td>
-                <td className="px-3 py-2 align-top">I1 (Ar 100 %)</td>
-                <td className="px-3 py-2 align-top">1,0 · 1,2</td>
-                <td className="px-3 py-2 align-top">
-                  Pulsado, <em>ColdArc</em> (soldeo MIG-brazing chapa galvanizada)
-                </td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>Hilo tubular / aportes especiales</strong></td>
-                <td className="px-3 py-2 align-top">Rutilo, básico, metal cored</td>
-                <td className="px-3 py-2 align-top">M21, C1</td>
-                <td className="px-3 py-2 align-top">1,2 · 1,4 · 1,6</td>
-                <td className="px-3 py-2 align-top">Estándar, pulsado</td>
-              </tr>
-              <tr className="border-t border-slate-700/40">
-                <td className="px-3 py-2 align-top"><strong>JOBs de usuario</strong></td>
-                <td className="px-3 py-2 align-top">—</td>
-                <td className="px-3 py-2 align-top">—</td>
-                <td className="px-3 py-2 align-top">—</td>
-                <td className="px-3 py-2 align-top">
-                  Huecos libres para guardar combinaciones propias.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <p className="text-slate-400 text-xs italic">
-          Importante: la tabla anterior es la estructura <em>típica</em> de la biblioteca de fábrica.
-          Los <strong>números de JOB exactos</strong> (qué JOB es cuál) dependen del firmware y de
-          los paquetes contratados con tu máquina. Para tener el listado real de tu Titan XQ 350 Plus,
-          confirmar en la propia fuente (ver paso siguiente) y completar aquí.
-        </p>
-
-        <h3 className="font-semibold text-base text-slate-100">Cómo ver el listado real desde la fuente</h3>
-        <ol className="list-decimal list-inside space-y-1 text-slate-200">
-          <li>Entrar en <strong>Modo Expert</strong> del panel de la Titan XQ.</li>
-          <li>
-            Menú <span className="font-mono text-slate-100">JOB → Lista de JOBs</span> (o equivalente en
-            tu firmware: la pantalla muestra número, material, gas, Ø hilo y proceso).
-          </li>
-          <li>
-            Anotar los JOBs precargados y los huecos libres. Esa lista es la "biblioteca real" de tu
-            máquina.
-          </li>
-        </ol>
-
-        <p className="text-slate-300">
-          Para soldar el robot con un JOB concreto, ese número es el que se le pasa a la fuente
-          desde el Kawasaki (ver{' '}
-          <Link to="/fundamentos/instrucciones-punto" className="text-indigo-300 underline">
-            Instrucciones del punto (WS/WC)
-          </Link>{' '}
-          y la base de datos de condiciones Aux 0420 del controlador).
-        </p>
-
-        <p className="text-xs text-slate-400 italic">
-          Fuentes: documentación EWM Expert XQ 2.0 (ewm-group.com / manualslib). Pendiente: capturas
-          de pantalla del menú real de la Titan XQ 350 Plus y completar la tabla con los JOBs
-          concretos de esta máquina.
-        </p>
-      </div>
-    ),
-  },
-  'weaving': {
-    title: 'Weaving (oscilación lateral)',
-    body: (
-      <div className="space-y-4 text-sm leading-relaxed">
-        <p className="text-slate-300">
-          El <strong>weaving</strong> (en el manual en español, "desplazamiento lateral") es el
-          movimiento <strong>oscilante</strong> que hace la antorcha mientras suelda, en vez de
-          avanzar en línea recta. Se usa para <strong>ensanchar el cordón</strong>, repartir mejor
-          el calor o rellenar un chaflán ancho de una sola pasada.
-        </p>
-
-        <h3 className="font-semibold text-base text-slate-100">Los tres parámetros</h3>
-        <ul className="list-disc list-inside space-y-1 text-slate-200">
-          <li>
-            <strong>Anchura (Weaving width, WV)</strong>: cuánto se separa la punta de la línea
-            central, en mm. Es la "amplitud" del zigzag.
-          </li>
-          <li>
-            <strong>Frecuencia (Weaving frequency)</strong>: cuántas oscilaciones completas por
-            segundo (Hz). A más frecuencia, más juntas las "ondas" del cordón.
-          </li>
-          <li>
-            <strong>Patrón (Pattern N.º, PN)</strong>: la <em>forma</em> de la oscilación. El
-            controlador trae 6 patrones estándar (ver más abajo) y, si está la opción instalada,
-            permite crear hasta 5 patrones propios (PN=6 a PN=10).
-          </li>
-        </ul>
-
-        <h3 className="font-semibold text-base text-slate-100">Sistema de ejes del weaving</h3>
-        <p className="text-slate-300">
-          El manual define tres direcciones referidas a la antorcha y al avance, no a los ejes del
-          robot:
-        </p>
-        <ul className="list-disc list-inside space-y-1 text-slate-200">
-          <li>
-            <strong>Vertical</strong>: dirección de la antorcha (+ hacia arriba, alejándose de la
-            pieza).
-          </li>
-          <li>
-            <strong>Lateral</strong>: perpendicular a la antorcha y al avance. Es donde "abre" el
-            zigzag.
-          </li>
-          <li>
-            <strong>Horizontal</strong>: dirección del movimiento de soldadura (+ hacia delante).
-          </li>
-        </ul>
-        <PdfFigure
-          src={pdfImage('arc_welding', 216)}
-          caption="Direcciones vertical / lateral / horizontal del weaving y anchura WV (Arc Welding §10.2)."
-        />
-
-        <h3 className="font-semibold text-base text-slate-100">Patrones estándar</h3>
-        <p className="text-slate-300">
-          El controlador trae estos seis patrones ya cargados (un genérico "Standard" + cinco con
-          número PN=1..5):
-        </p>
-        <PdfFigure
-          src={pdfImage('arc_welding', 213)}
-          caption="Tabla de patrones estándar registrados (Arc Welding §10.1.1): Simple harmonic, Simple harmonic both ends stop, Triangular, Reciprocating triangular, Circular CW y Circular CCW."
-        />
-        <PdfFigure
-          src={pdfImage('arc_welding', 217)}
-          caption="Relación entre frecuencia y ciclo, y ejemplo del PN=1 (armónico simple con parada en ambos extremos) a 0,5 Hz, 1 Hz y 2 Hz."
-        />
-
-        <h3 className="font-semibold text-base text-slate-100">Dónde se mete en el programa</h3>
-        <p>
-          Los datos de weaving se introducen en los datos auxiliares de los puntos{' '}
-          <span className="chip bg-amber-500/25 text-amber-100 border border-amber-400/40 mr-1">
-            WC
-          </span>{' '}
-          y{' '}
-          <span className="chip bg-rose-500/25 text-rose-100 border border-rose-400/40 mr-1">
-            WE
-          </span>{' '}
-          — los puntos del cordón propiamente dicho. El{' '}
-          <span className="chip bg-emerald-500/25 text-emerald-100 border border-emerald-400/40 mr-1">
-            WS
-          </span>{' '}
-          (inicio de soldadura) lleva el dato de arco pero no de weaving (la oscilación arranca
-          desde el primer WC).
-        </p>
-        <PdfFigure
-          src={pdfImage('arc_welding', 56)}
-          caption="Apartado §5.5.12: los datos de weaving (Width, Frequency, Pattern) están disponibles para las instrucciones WC y WE."
-        />
-
-        <h3 className="font-semibold text-base text-slate-100">
-          Comportamiento en CHECK (soldadura desactivada)
-        </h3>
-        <p className="text-slate-300">
-          Cuando se prueba el programa sin soldar (modo CHECK con weld OFF), por defecto el robot{' '}
-          <strong>no oscila</strong>: recorre la línea base para que puedas verificar la
-          trayectoria sin perder tiempo con el zigzag. La pantalla muestra el aviso "Weaving OFF"
-          como recordatorio.
-        </p>
-        <PdfFigure
-          src={pdfImage('arc_welding', 78)}
-          caption='Indicador "Weaving OFF" en pantalla cuando la soldadura está deshabilitada y el ajuste "Weaving Motion at Weld Off" está en Disable (Arc Welding §6.2).'
-        />
-        <p className="text-slate-300">
-          Si quieres comprobar también el zigzag en CHECK, hay que activar
-          <span className="font-mono text-slate-100"> Aux. 140409 → Weaving Motion at Weld Off = Enable</span>.
-        </p>
-
-        <p className="text-xs text-slate-400 italic">
-          Fuente: Arc Welding Operation Manual (Serie E), §5.5.12 (datos en WC/WE), §6.2 (CHECK
-          sin oscilar) y §10 (patrones estándar y patrón especial opcional).
-        </p>
-      </div>
-    ),
-  },
 };
 
 function PdfFigure({ src, caption }: { src: string; caption: string }) {
@@ -1073,95 +1039,89 @@ function PdfFigure({ src, caption }: { src: string; caption: string }) {
   );
 }
 
-// Diagrama conceptual del JOB y sus 16 programas P0..P15.
-// Pensado para móvil: el bloque JOB arriba (lo que NO se toca por programa),
-// y debajo una rejilla de 16 tarjetas P0..P15 (lo que SÍ varía por programa).
-function JobDiagram() {
-  const programs: { id: string; label: string; example: string; highlight?: boolean }[] = [
-    { id: 'P0', label: 'Manual', example: 'WFS libre', highlight: true },
-    { id: 'P1', label: 'PB raíz', example: '7,5 m/min · 0 V' },
-    { id: 'P2', label: 'PB relleno', example: '9,5 m/min · +1 V' },
-    { id: 'P3', label: 'PF raíz', example: '4,5 m/min · −1 V' },
-    { id: 'P4', label: 'PF relleno', example: '6,0 m/min · 0 V' },
-    { id: 'P5', label: '—', example: 'libre' },
-    { id: 'P6', label: '—', example: 'libre' },
-    { id: 'P7', label: '—', example: 'libre' },
-    { id: 'P8', label: '—', example: 'libre' },
-    { id: 'P9', label: '—', example: 'libre' },
-    { id: 'P10', label: '—', example: 'libre' },
-    { id: 'P11', label: '—', example: 'libre' },
-    { id: 'P12', label: '—', example: 'libre' },
-    { id: 'P13', label: '—', example: 'libre' },
-    { id: 'P14', label: '—', example: 'libre' },
-    { id: 'P15', label: '—', example: 'libre' },
-  ];
-
+// Diagrama de posiciones de soldadura: 6 tarjetas (PA, PB/PC, PF, PG, PD/PE, 5G/6G)
+// con su pictograma esquemático en SVG y la doble nomenclatura AWS / ISO.
+function PositionsDiagram() {
   return (
-    <div className="rounded-2xl border border-slate-700/60 bg-slate-900/40 p-3 sm:p-4 space-y-3">
-      {/* Cabecera: el JOB (lo invariante) */}
-      <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3">
-        <div className="text-[10px] uppercase tracking-wider text-emerald-300 font-semibold">
-          JOB nº __
-        </div>
-        <div className="font-semibold text-emerald-50 mt-0.5">
-          Acero al carbono · Gas M21 · Hilo Ø 1,0 mm · Pulsado
-        </div>
-        <div className="text-xs text-emerald-200/80 mt-1">
-          Curva sinérgica fija (la relación I–U–WFS calibrada por EWM). No se toca por programa.
-        </div>
-      </div>
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      <PositionCard codeAws="1F · 1G" codeIso="PA" name="Plana" color="emerald">
+        <svg viewBox="0 0 100 60" className="w-full h-full">
+          <rect x="10" y="35" width="80" height="10" fill="#475569" />
+          <polygon points="50,18 46,30 54,30" fill="#10b981" />
+          <line x1="50" y1="18" x2="50" y2="10" stroke="#10b981" strokeWidth="2" />
+        </svg>
+      </PositionCard>
+      <PositionCard codeAws="2F · 2G" codeIso="PB · PC" name="Horizontal" color="sky">
+        <svg viewBox="0 0 100 60" className="w-full h-full">
+          <rect x="10" y="40" width="80" height="6" fill="#475569" />
+          <rect x="10" y="14" width="6" height="26" fill="#475569" />
+          <polygon points="30,30 22,38 30,46" fill="#0ea5e9" />
+          <line x1="30" y1="30" x2="38" y2="22" stroke="#0ea5e9" strokeWidth="2" />
+        </svg>
+      </PositionCard>
+      <PositionCard codeAws="3F · 3G ↑" codeIso="PF" name="Vertical asc." color="amber">
+        <svg viewBox="0 0 100 60" className="w-full h-full">
+          <rect x="40" y="8" width="20" height="48" fill="#475569" />
+          <polygon points="62,40 74,36 74,44" fill="#f59e0b" />
+          <line x1="74" y1="40" x2="82" y2="40" stroke="#f59e0b" strokeWidth="2" />
+          <path d="M 64 28 L 64 18 M 60 22 L 64 18 L 68 22" fill="none" stroke="#f59e0b" strokeWidth="1.5" />
+        </svg>
+      </PositionCard>
+      <PositionCard codeAws="3G ↓" codeIso="PG" name="Vertical desc." color="rose">
+        <svg viewBox="0 0 100 60" className="w-full h-full">
+          <rect x="40" y="8" width="20" height="48" fill="#475569" />
+          <polygon points="62,24 74,20 74,28" fill="#f43f5e" />
+          <line x1="74" y1="24" x2="82" y2="24" stroke="#f43f5e" strokeWidth="2" />
+          <path d="M 64 32 L 64 42 M 60 38 L 64 42 L 68 38" fill="none" stroke="#f43f5e" strokeWidth="1.5" />
+        </svg>
+      </PositionCard>
+      <PositionCard codeAws="4F · 4G" codeIso="PD · PE" name="Bajo techo" color="fuchsia">
+        <svg viewBox="0 0 100 60" className="w-full h-full">
+          <rect x="10" y="14" width="80" height="10" fill="#475569" />
+          <polygon points="50,42 46,30 54,30" fill="#d946ef" />
+          <line x1="50" y1="42" x2="50" y2="50" stroke="#d946ef" strokeWidth="2" />
+        </svg>
+      </PositionCard>
+      <PositionCard codeAws="5G · 6G" codeIso="PH/PJ · H-L045" name="Tubería" color="indigo">
+        <svg viewBox="0 0 100 60" className="w-full h-full">
+          <ellipse cx="50" cy="30" rx="26" ry="18" fill="none" stroke="#475569" strokeWidth="4" />
+          <polygon points="76,30 84,26 84,34" fill="#6366f1" />
+          <line x1="84" y1="30" x2="92" y2="30" stroke="#6366f1" strokeWidth="2" />
+        </svg>
+      </PositionCard>
+    </div>
+  );
+}
 
-      {/* Flecha "contiene" */}
-      <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
-        <span className="h-px flex-1 bg-slate-700" />
-        <span>contiene 16 programas</span>
-        <span className="h-px flex-1 bg-slate-700" />
+function PositionCard({
+  codeAws,
+  codeIso,
+  name,
+  color,
+  children,
+}: {
+  codeAws: string;
+  codeIso: string;
+  name: string;
+  color: 'sky' | 'emerald' | 'amber' | 'rose' | 'fuchsia' | 'indigo';
+  children: React.ReactNode;
+}) {
+  const palette: Record<typeof color, string> = {
+    sky: 'border-sky-400/40 bg-sky-500/10',
+    emerald: 'border-emerald-400/40 bg-emerald-500/10',
+    amber: 'border-amber-400/40 bg-amber-500/10',
+    rose: 'border-rose-400/40 bg-rose-500/10',
+    fuchsia: 'border-fuchsia-400/40 bg-fuchsia-500/10',
+    indigo: 'border-indigo-400/40 bg-indigo-500/10',
+  };
+  return (
+    <div className={`rounded-xl border p-2 ${palette[color]}`}>
+      <div className="font-mono font-bold text-slate-100 text-xs leading-tight">{codeAws}</div>
+      <div className="font-mono text-[10px] text-slate-300 leading-tight">{codeIso}</div>
+      <div className="text-[11px] text-slate-200 mt-0.5">{name}</div>
+      <div className="h-14 mt-1 rounded bg-slate-900/40 flex items-center justify-center">
+        {children}
       </div>
-
-      {/* Rejilla de programas P0..P15 */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        {programs.map((p) => (
-          <div
-            key={p.id}
-            className={
-              p.highlight
-                ? 'rounded-lg border border-amber-500/50 bg-amber-500/10 p-2'
-                : p.label === '—'
-                ? 'rounded-lg border border-slate-700/60 bg-slate-800/30 p-2 opacity-60'
-                : 'rounded-lg border border-indigo-500/40 bg-indigo-500/10 p-2'
-            }
-          >
-            <div
-              className={
-                p.highlight
-                  ? 'font-mono font-bold text-amber-200 text-sm'
-                  : p.label === '—'
-                  ? 'font-mono font-bold text-slate-400 text-sm'
-                  : 'font-mono font-bold text-indigo-200 text-sm'
-              }
-            >
-              {p.id}
-            </div>
-            <div
-              className={
-                p.label === '—'
-                  ? 'text-[11px] text-slate-500 leading-tight mt-0.5'
-                  : 'text-[11px] text-slate-200 leading-tight mt-0.5'
-              }
-            >
-              {p.label}
-            </div>
-            <div className="text-[10px] text-slate-400 leading-tight mt-0.5">{p.example}</div>
-          </div>
-        ))}
-      </div>
-
-      <p className="text-[11px] text-slate-400 leading-snug">
-        Cada programa ajusta <strong>WFS, corrección de tensión, dinámica, slope y gas</strong> sobre
-        la misma curva sinérgica. <span className="text-amber-300 font-semibold">P0</span> es el modo
-        manual; <span className="text-indigo-300 font-semibold">P1..P15</span> son recetas guardadas.
-        Las casillas en gris están libres para guardar más recetas.
-      </p>
     </div>
   );
 }

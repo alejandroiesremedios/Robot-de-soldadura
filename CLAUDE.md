@@ -33,8 +33,8 @@ Listado maestro de procedimientos que deben existir en la app (pantalla Procedim
 
 ### Robot — operación general
 
-- ✅ Encendido del robot (Serie E §3.1)
-- ✅ Apagado del robot (Serie E §3.2)
+- ✅ Encendido del robot — **movido a Fundamentos → Modos del robot y arranque/parada** (Serie E §3.1)
+- ✅ Apagado del robot — **movido a Fundamentos → Modos del robot y arranque/parada** (Serie E §3.2)
 - ✅ Parada de emergencia y recuperación (Serie E §3.3)
 - ✅ Wire check (wire_check.pdf)
 - ✅ Touch sensing (Touch_sensing.pdf)
@@ -54,7 +54,7 @@ Listado maestro de procedimientos que deben existir en la app (pantalla Procedim
 
 Fuente: web oficial ewm-group.com (no hay PDF aportado todavía).
 
-- ✅ Crear un programa dentro de un JOB — explicado como **subsección de Fundamentos "JOB (EWM)"** (concepto + tabla de familias de JOBs disponibles + ejemplo PB/PF con 4 programas en mismo JOB). _Pendiente añadir capturas reales del panel Expert XQ 2.0 cuando se hagan en el taller._
+- ✅ Crear un programa dentro de un JOB (Procedimientos → `job-ewm`) — concepto de JOB, definición de curva sinérgica, estructura P0..P15 y receta paso a paso para guardar P1..P15 sobre el mismo JOB. _Pendiente añadir capturas reales del panel Expert XQ 2.0 cuando se hagan en el taller._
 - ⬜ Modo Expert — estructura general de menús
 - ⬜ Cargar JOB desde el robot por número (interfaz Kawasaki ↔ EWM)
 - ⬜ Ajustar curva sinérgica (material / gas / diámetro de hilo)
@@ -102,6 +102,7 @@ _(El proyecto aún no tiene código. Se irá completando.)_
 - **UI — botones en grupo**: cuando se crea una serie de botones (por ejemplo el menú principal o cualquier conjunto de acciones agrupadas), cada botón debe llevar un **color distinto**. Un grupo monocromo cansa la vista, todo se ve igual y se pierde la atención del usuario; los colores diferenciados dan jerarquía visual y ayudan a reconocer la opción de un vistazo.
 - **Contenidos siempre con imágenes**: el texto solo no basta. Todo procedimiento o sección de fundamentos debe ir acompañado de las imágenes/diagramas del PDF de referencia. Aplica también a contenidos futuros (no solo a los ya hechos).
 - **Push a GitHub — recordatorio proactivo**: nunca pushear/desplegar sin que el usuario lo pida, pero **sí preguntárselo proactivamente** cada cierto tiempo y tras avances importantes (procedimiento terminado, refactor cerrado, build verde tras un cambio grande, fin natural de un bloque de trabajo). Una sola pregunta corta, sin perseverar si dice que no.
+- **Standalone HTML (`Robot Soldadura.html`) — regenerar tras cada cambio**: el usuario consulta la app haciendo doble click en `Robot Soldadura.html` (un único fichero autocontenido en la raíz del proyecto). Ese fichero se genera con `npm run build:standalone` y **no se actualiza solo**: si no se regenera, el usuario sigue viendo la versión vieja por más que el código esté actualizado. Por tanto, **al terminar cualquier cambio que toque el contenido visible (procedimientos, fundamentos, imágenes, estilos)**, ejecutar `npm run build:standalone` antes de dar la tarea por cerrada. Alternativa para sesiones largas: dejar corriendo `npm run watch:standalone` en segundo plano para que se regenere automáticamente con cada save.
 
 ## Metodología para poblar contenido (a aplicar a cada apartado)
 
@@ -154,6 +155,19 @@ Patrón ya validado en el procedimiento de **wire check** y en las secciones de 
 - Nuevo procedimiento **"Programa de soldadura básico — un cordón entre dos puntos (AC / WS / WC / WE)"** (id `programa-basico`) en `src/data/procedures.ts`. 14 pasos cubriendo: planificar trayectoria (P0..P5), elegir interpolaciones, decidir estado de soldadura (directo vs por número), entender condiciones disponibles, crear/abrir programa, paso 1 (AC en P0), paso 2 (WS en P1 con ajuste de ángulo del soplete), paso 3 (WC en P2 con técnica de escape Z- en herramienta), paso 4 (WE en P3 con cráter), paso 5 (AC en P4), cierre con retorno a HOME, verificación en CHECK (sin arco, con arco), paso a AUTO. 6 notas con la regla AC/WS/WC/WE, estado igual en el cordón, tratamiento de cráter solo en WE, weaving solo en WC/WE, REC vs MOD, semántica de velocidades. Insertado antes del weaving porque es el procedimiento estructural sobre el que se apoyan los demás. Marcado ✅ en el inventario.
 - Renderizadas 8 páginas nuevas del manual Arc Welding: 61 (§5.7.2 datos auxiliares vs estado), 62 (tabla tipos de condiciones), 66 (Figura 5.2 pantalla pg10), 67 (paso 1 P0/AC + Figura 5.3), 68 (paso 2 P1/WS con ángulo soplete 45°), 69 (paso 3 P2/WC con escape Z-), 70 (paso 4 P3/WE), 71 (paso 5 P4/AC + Figura 5.7).
 - Inventario `arc_welding` ampliado a 30 páginas (22 → 30).
+- Build OK (`npm run build`, 79 entries / 17,8 MiB precache).
+
+### 2026-06-09
+
+- Reestructurado **Fundamentos** para que contenga solo conceptos verdaderamente fundamentales (a petición del usuario: "en fundamentos solo tiene que estar lo fundamental"):
+  - **Añadidas** tres secciones nuevas: **Modos del robot y arranque/parada** (TEACH/REPEAT/CHECK + override + encendido + apagado + métodos de parada, con figuras Serie E §3.1-§3.3), **Estado de soldadura (Weld condition N.º)** (Aux 0420, con figuras Arc Welding §5.7.2) y **Posiciones de soldadura** (AWS A3.0 1F-4F/1G-6G + ISO 6947 PA-PG, con `PositionsDiagram` — 6 tarjetas SVG con pictogramas).
+  - **Eliminada** la sección **Weaving** de Fundamentos (no era conceptual; el material está en los procedimientos `weaving` y `weaving-especial`).
+  - **Eliminada** la sección **JOB (EWM)** de Fundamentos y migrada a Procedimientos como `job-ewm` (ver siguiente bullet).
+- Nuevo procedimiento **"Crear un programa dentro de un JOB (EWM)"** (id `job-ewm`) en `src/data/procedures.ts`. 10 pasos: qué es un JOB, qué es la curva sinérgica (relación I-U-WFS calibrada por EWM, mando único de WFS + U-corr), familias disponibles en el Titan XQ 350 Plus, seleccionar JOB en panel Expert XQ 2.0, estructura P0..P15 (P0 manual, P1..P15 recetas), crear P1, guardar, repetir para P2..P4 con ejemplo PB/PF, llamar el programa desde el TP (par JOB nº + Pnº por interfaz robot↔EWM), verificación en banco. 4 notas (qué NO cambia el programa, curva pertenece al JOB, P0 = MANUAL, capturas del panel pendientes). _Pendiente añadir capturas reales del panel Expert XQ 2.0._
+- **Encendido y apagado movidos** de Procedimientos a Fundamentos (a petición del usuario: "encendido y apagado pasan a fundamentales"). Los pasos ahora viven dentro de la sección **Modos del robot y arranque/parada** como listas numeradas, con las figuras del Serie E (§3.1, §3.2) que ya estaban. Eliminados los procedimientos `encendido` y `apagado` de `src/data/procedures.ts` (parada-emergencia se queda como procedimiento al ser un caso de recuperación, no un modo).
+- Componente `JobDiagram` (cabecera + rejilla 4×4 P0..P15) eliminado de `Fundamentos.tsx` al borrar la sección JOB. La explicación equivalente vive ahora en el procedimiento `job-ewm` en formato de pasos.
+- Refs rotos `to: 'job-ewm'` (4 ocurrencias en `procedures.ts`) reapuntados a `to: 'estado-soldadura'` — encajan mejor con el contenido de cada paso y mantienen el chip de fundamento útil.
+- Link interno `/fundamentos/job-ewm` en la sección `estado-soldadura` reapuntado a `/procedimientos/job-ewm`.
 - Build OK (`npm run build`, 79 entries / 17,8 MiB precache).
 
 ### 2026-06-08
