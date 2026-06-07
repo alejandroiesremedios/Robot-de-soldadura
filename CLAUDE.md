@@ -45,7 +45,7 @@ Listado maestro de procedimientos que deben existir en la app (pantalla Procedim
 - ✅ Weaving triangular para 3F y 3G ascendente (GMAW, acero, hilo Ø1,0) — PN=2, parámetros orientativos
 - ⬜ Programa de soldadura básico — AS / WS / WC / WE entre puntos (Arc Welding §4–§5)
 - ⬜ Dar de alta una entrada en la base de datos de condiciones de soldadura (Aux 0420) (Arc Welding)
-- ⬜ Crear / editar patrón especial de weaving (Aux 1404-11, opción) — **redactar con detalle extra** (Arc Welding §10.3–§10.4)
+- ✅ Crear / editar patrón especial de weaving (Aux 1404-11) — modificar tiempos y paradas en vértices, con caso aplicado a unión a tope vertical ascendente (Arc Welding §10.3–§10.4 + Apéndice 3)
 - ⬜ Copiar / mover / borrar pasos de un programa (Serie E §6 edición de programa)
 - ⬜ REC vs MOD: modificar un punto ya grabado sin perder sus instrucciones (Serie E §5)
 - ⬜ Modos de ejecución TEACH / CHECK / AUTO y override de velocidad (Serie E §3–§4)
@@ -148,6 +148,15 @@ Patrón ya validado en el procedimiento de **wire check** y en las secciones de 
 - Optimizada `robot.jpg` (3,4 MB) → `robot.webp` (132 kB, -96 %) con `sharp` (devDep nueva) y nuevo script `tools/optimize-images.mjs` (resize a 1200 px + WebP q82). Borrado el duplicado `public/robot.jpg` que se servía sin uso. Precache PWA bajó de 17,4 MiB a 10,7 MiB.
 - Añadidos `tools/find-pdf-pages.mjs` (localiza páginas por contenido) y `tools/dump-pdf-pages.mjs` (vuelca texto plano por página) para preparar selecciones futuras.
 - `tools/render-pdf-pages.mjs` acepta filtro por id en argv (`node render-pdf-pages.mjs serie_e`) para no re-renderizar todo.
+
+### 2026-06-08
+
+- Nuevo procedimiento **"Crear patrón especial de weaving (Aux 1404-11) — modificar tiempos y paradas en vértices"** (id `weaving-especial`) en `src/data/procedures.ts`. 14 pasos con foco en: diferencia con patrones estándar, comprobar opción instalada, sistema de coordenadas X/Y/Z + ángulo del soplete, diagrama de flujo de los 5 pasos, dibujar ciclo + origen + anchura, diagrama de expansión por direcciones, rellenar hoja punto a punto, aumento de corriente/tensión en paradas, carga en Aux 1404-11, aplicación a unión a tope vertical ascendente (3G), referencia simple para coger soltura (horizontal plana), verificación en CHECK y ajuste fino por probeta. 6 notas (requiere opción, máx. 15 puntos, cómo crear una parada con dos puntos consecutivos, ángulo importa tanto como tiempos, Aux 1413 para el boost, calificación normativa). Marcado ✅ en el inventario.
+- Renderizadas 10 páginas nuevas del manual Arc Welding para soportar el procedimiento: 219 (PN=2 estándar), 220 (PN=3 estándar con paradas), 227 (sistema de coordenadas §10.4.1), 230 (diagrama de flujo §10.4.2), 233 (diagrama de expansión Caso 1 con paradas 26%/26%), 234 (Caso 2 — bisel V 22,5° con separación raíz 4 mm), 235 (hoja de cumplimentación punto a punto), 302 (Apéndice 3 — triangular con paradas horizontal plana), 306 (Apéndice 3 — triangular para ranura bisel único), 312 (Apéndice 3 — triangular con paradas + aumento corriente 20%).
+- Actualizada nota en `weaving-3f-3g` para enlazar al nuevo procedimiento desde la sugerencia de "considerar patrón personalizado".
+- `tools/dump-pdf-pages.mjs` ampliado para aceptar el id del PDF como tercer argumento (`serie_e` | `arc_welding` | `k_roset`), no solo Serie E.
+- `tools/render-pdf-pages.mjs`: comentarios y array `pages` del job `arc_welding` ampliados con las 10 páginas nuevas (12 → 22 páginas).
+- Build OK (`npm run build`, 71 entries / 15,3 MiB precache).
 
 ### 2026-06-07
 

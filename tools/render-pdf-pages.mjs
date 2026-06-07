@@ -75,7 +75,20 @@ const JOBS = [
     //  213   Cap. 10 — Tabla de patrones estándar registrados (PN=1..5)
     //  216   10.2 Direcciones (vertical / lateral / horizontal) + anchura WV
     //  217   10.2 Relación frecuencia-ciclo + ejemplo PN=1
-    pages: [46, 48, 49, 51, 56, 60, 65, 77, 78, 213, 216, 217],
+    //  219   PN=2 Triangular — movimiento + relación temporal del ciclo
+    //  220   PN=3 Triangular recíproco con parada en ambos extremos + centro
+    //  227   10.4.1 Sistema de coordenadas X/Y/Z + ángulo del soplete
+    //  230   10.4.2 Diagrama de flujo (5 pasos) para crear un patrón
+    //  233   Caso 1 — diagrama de expansión con tiempos de parada 26 % / 26 %
+    //  234   Caso 2 — bisel V 22,5° con separación de raíz 4 mm
+    //  235   Caso 2 — tabla de cumplimentación punto a punto (Tiempo / X / Y / Z / Áng / Cor / Tens)
+    //  302   Apéndice 3 — Triangular con parada en ambos extremos (hoja completa)
+    //  306   Apéndice 3 — Triangular horizontal para ranura bisel único 22,5°
+    //  312   Apéndice 3 — Triangular con paradas + aumento de corriente 20 % en extremos
+    pages: [
+      46, 48, 49, 51, 56, 60, 65, 77, 78, 213, 216, 217,
+      219, 220, 227, 230, 233, 234, 235, 302, 306, 312,
+    ],
   },
   {
     pdf: 'K-ROSET Instruction Manual_EN.pdf',

@@ -390,12 +390,129 @@ export const PROCEDURES: Procedure[] = [
     ],
     notes: [
       'Vertical ascendente con triángulo: la regla de oro es ir despacio. La vel. de avance baja (5-12 cm/min según pasada) es lo que permite que el baño se solidifique antes de descolgar.',
-      'Si el resultado con PN=2 no satisface tras varias probetas, considerar crear un patrón personalizado por Aux 1404-11 (opción "Special Pattern Weaving"). Tiene procedimiento aparte.',
+      'Si el resultado con PN=2 no satisface tras varias probetas, considerar crear un patrón personalizado por Aux 1404-11 (opción "Special Pattern Weaving"). Procedimiento detallado en "Crear patrón especial de weaving (Aux 1404-11)".',
       'Pulsado vs short-arc: para vertical ascendente, pulsado da menos calor por unidad de longitud y mejor control del baño. En raíz, short-arc también vale por su penetración corta y controlada.',
       'Recuerda: los valores tabulados asumen probeta limpia, sin pintura ni cascarilla. Una unión sucia exige más calor (mayor WFS) y arruina el cordón.',
     ],
     source:
       'Arc Welding Operation Manual (Serie E) §5.5.12, §6.2, §10. Posiciones según AWS A3.0 / ISO 6947. Parámetros orientativos basados en práctica habitual GMAW con G3Si1 Ø1,0 + M21; calificación final por ensayo según EN ISO 15614-1.',
+  },
+  {
+    id: 'weaving-especial',
+    title: 'Crear patrón especial de weaving (Aux 1404-11) — modificar tiempos y paradas en vértices',
+    category: 'Soldadura',
+    summary:
+      'Cuando los seis patrones de fábrica (Standard, PN=1..5) no dan la forma o el reparto de calor que la unión necesita, se crea un patrón especial en una de las posiciones libres PN=6..10. A diferencia de los estándar, en el patrón especial tú defines punto a punto cuánto % del ciclo dura cada tramo, dónde el soplete se queda parado (placa horizontal, placa vertical o centro) y cuánto sube/baja la corriente o la tensión en cada instante. Es la herramienta que pide una unión a tope en vertical ascendente: triángulo con paradas medidas en los flancos del chaflán para fundir bien los cantos y caída controlada hacia el centro para que el baño no descuelgue. Requiere la opción "Special Pattern Weaving" instalada (Aux 1404-11).',
+    cover: {
+      src: pdfImage('arc_welding', 219),
+      caption:
+        'Patrón triangular estándar PN=2: movimiento + relación temporal en un ciclo (Arc Welding §10.2). El patrón especial te permite redibujar esta misma figura cambiando los porcentajes de tiempo y añadiendo paradas.',
+    },
+    steps: [
+      {
+        text:
+          'Entiende la diferencia con los estándar antes de empezar. En PN=1..5 solo eliges anchura (WV), frecuencia (Hz) y número de patrón — la forma del ciclo está fijada por el robot. En el patrón especial defines hasta 15 puntos por ciclo y, para cada punto, asignas un "tiempo (%)" entre 0 y 100 que indica en qué instante del ciclo el soplete debe estar en esa posición. La diferencia entre dos tiempos consecutivos es lo que dura ese tramo. Así puedes hacer que un lado tarde más que otro, o que el soplete se quede parado en el vértice para meter más calor.',
+        image: pdfImage('arc_welding', 220),
+        caption:
+          'PN=3 estándar (triangular recíproco con parada en ambos extremos y centro). La idea de "parar en el vértice" ya está en los estándar; con el patrón especial decides tú el % de parada (Arc Welding §10.2).',
+        refs: [{ to: 'weaving', label: 'Recordar qué es PN, WV y frecuencia' }],
+      },
+      {
+        text:
+          'Comprueba que tienes la opción instalada. Mira en Aux 0207 (Function setting) si aparece "Special Pattern Weaving". Si no, el menú Aux 1404-11 no existirá y los PN del 6 al 10 seguirán marcados como "No registrado" en la tabla de patrones. La opción se compra a Kawasaki y se activa con clave; si no la tienes, el resto del procedimiento es académico.',
+        image: pdfImage('arc_welding', 213),
+        caption:
+          'Tabla de patrones registrados en el robot. Los PN 6 a 10 figuran como "No registrado" — son los huecos que rellena el patrón especial (Arc Welding §10.1.1).',
+      },
+      {
+        text:
+          'Aprende el sistema de coordenadas del weaving especial: X = dirección horizontal del soplete (avance del cordón, hacia delante/atrás), Y = dirección lateral (perpendicular al cordón, lo que define la anchura), Z = dirección vertical (arriba/abajo del soplete). Además puedes inclinar el soplete: ángulo de péndulo (giro alrededor de la punta) hasta ±10°, con negativo hacia la placa vertical. Cada valor punto a punto se da como % de la amplitud total: ±100 % es el máximo en esa dirección, 0 % es la línea base del cordón.',
+        image: pdfImage('arc_welding', 227),
+        caption:
+          'Sistema de coordenadas del patrón especial: X horizontal, Y lateral, Z vertical y rotación del ángulo del soplete (Arc Welding §10.4.1).',
+      },
+      {
+        text:
+          'Sigue el diagrama de flujo de creación (5 pasos): (1) dibujar el ciclo de movimiento deseado, (2) elegir el origen de aprendizaje y la anchura, (3) crear los diagramas de expansión por direcciones (X, Y, Z), (4) rellenar la hoja de puntos con tiempo y porcentajes, (5) cargar los datos en el robot por Aux 1404-11. Aplica los cinco pasos antes de tocar el TP — los errores se detectan en papel mucho más rápido que en máquina.',
+        image: pdfImage('arc_welding', 230),
+        caption:
+          'Diagrama de flujo para crear un patrón especial (Arc Welding §10.4.2). Hay hoja en blanco en el Apéndice 3 del manual para fotocopiar.',
+      },
+      {
+        text:
+          'Paso 1 — Dibujar el ciclo. En papel, dibuja un solo ciclo del movimiento de la punta del soplete tal y como lo quieres ver desde encima. Si quieres que la oscilación empiece y termine en el mismo sitio (lo normal), el primer y el último punto deben tener amplitud 0 en todas las direcciones — así el ciclo cierra y se repite limpio. Máximo 15 puntos. Para un triangular con paradas, 4-6 puntos suelen bastar.',
+      },
+      {
+        text:
+          'Paso 2 — Origen de aprendizaje y anchura. El origen de aprendizaje es el punto del TP donde se inscribe el patrón (normalmente el WC del cordón); ahí la amplitud vale 0. La anchura del weaving se establece por defecto a 90° respecto al eje del soplete, pero en una junta a tope puedes alinearla con la dirección de la ranura (caso 2) — esto es lo que necesitas para que el soplete recorra los flancos del chaflán y no la chapa plana.',
+        image: pdfImage('arc_welding', 234),
+        caption:
+          'Caso 2 del manual — junta a tope con chaflán en V (talón 4 mm, separación de raíz 4 mm) con soplete inclinado a 22,5°. La anchura del weaving se alinea con la ranura, no con la horizontal (Arc Welding §10.4.2).',
+      },
+      {
+        text:
+          'Paso 3 — Diagrama de expansión por direcciones. Para cada dirección (X horizontal, Y lateral, Z vertical) dibuja un gráfico tiempo-amplitud: en el eje horizontal el % del ciclo (0 a 100), en el vertical el % de amplitud (-100 a +100). En el caso 1 del manual (junta de redondeo, soldadura horizontal plana) el patrón triangular con parada en placas tiene 26 % de tiempo de parada en la placa horizontal y 26 % en la vertical — ahí ves cómo se grafica: tramos planos en el extremo (la parada) y tramos en rampa (el desplazamiento).',
+        image: pdfImage('arc_welding', 233),
+        caption:
+          'Diagrama de expansión del Caso 1: anchura 6 mm, tiempo de parada 26 % en placa horizontal y 26 % en placa vertical. El soplete tarda 26 % del ciclo en cada flanco (Arc Welding §10.4.2).',
+      },
+      {
+        text:
+          'Paso 4 — Rellenar la hoja punto a punto. Para cada uno de los 15 puntos máximo, escribe: Tiempo (%) acumulado dentro del ciclo, X lat (%), Y lateral (%), Z vertical (%), Ángulo del soplete (°), aumento de corriente (%) y aumento de tensión (%). Los puntos van ordenados por tiempo creciente. La diferencia entre el "Tiempo" de un punto y el siguiente es la duración de ese tramo. Para una parada en un vértice, basta poner dos puntos consecutivos con la misma posición (X/Y/Z iguales) y dejar entre sus tiempos el % de parada que quieras: por ejemplo, punto 2 con tiempo 20 % y punto 3 con tiempo 30 % a la misma posición = parada del 10 % en ese extremo.',
+        image: pdfImage('arc_welding', 235),
+        caption:
+          'Hoja de cumplimentación del Caso 2 (manual §10.4.2). Cinco puntos del ciclo: tiempos 12 / 38 / 50 / 62 / 88 %, con paradas implícitas en los extremos.',
+      },
+      {
+        text:
+          'Aumento de corriente y tensión en las paradas (opcional pero útil). En las columnas Corriente (%) y Tensión (%) puedes pedir que durante ese punto el EWM suba un % la salida — típicamente +20 % en los extremos del triangular, para meter calor extra y fundir bien el canto sin pasarse en el centro. Esta función obliga a configurar Aux 1413 "Special Pattern Weaving Boost Target Exempt" indicando qué señales de salida aumentan. Si no quieres tocar la corriente, deja esas columnas a 0.',
+        image: pdfImage('arc_welding', 312),
+        caption:
+          'Apéndice 3 — Triangular con parada en ambos extremos y aumento de corriente del 20 % en los puntos 2-3 y 7-8 (las paradas). 9 puntos, 10 % de parada en cada placa (Arc Welding Apéndice 3).',
+      },
+      {
+        text:
+          'Paso 5 — Cargar en el robot por Aux 1404-11. En el TP: <AUX> → 1404 → 11 "Special Pattern Weaving". Elige el número de PN libre (6 a 10), introduce los puntos uno a uno con los valores de la hoja, y al final introduce los tiempos globales de parada en placa horizontal, placa vertical y centro (en %). Guarda. A partir de aquí el PN nuevo aparece en la lista junto a los estándar y se usa en los datos auxiliares del WC/WE exactamente igual que un PN de fábrica.',
+        refs: [
+          { to: 'weaving', label: 'Asignar el PN al WC/WE del cordón' },
+          { to: 'teach-pendant', label: 'Acceso a Aux desde el TP' },
+        ],
+      },
+      {
+        text:
+          'Aplicación a unión a tope vertical ascendente (3G / PF). Plantilla recomendada como punto de partida — chapa de 10 mm con preparación V 60°, separación raíz 3 mm, hilo G3Si1 Ø1,0, M21: PN=6 triangular con 6 puntos, anchura = ancho del chaflán + 2 mm, tiempo de parada 20-25 % en cada flanco (placa vertical y placa horizontal del chaflán), tiempo central rápido (5-10 %), aumento de corriente +15-20 % en los puntos de parada. Esto es la versión "a medida" del Apéndice 3 (p.306, triangular para ranura bisel único 22,5°). Calibrar con probetas y ajustar.',
+        image: pdfImage('arc_welding', 306),
+        caption:
+          'Apéndice 3 — Patrón triangular horizontal para ranura con bisel único a 22,5°. 3 puntos del ciclo (tiempos 25 / 50 / 75 %), sin paradas: punto de partida que conviene modificar añadiendo paradas para 3G (Arc Welding Apéndice 3).',
+        refs: [{ to: 'weaving-3f-3g', label: 'Caso aplicado 3F/3G con PN=2 estándar' }],
+      },
+      {
+        text:
+          'Aplicación a cordón en horizontal con paradas (referencia más simple para coger soltura). Para una junta de redondeo en horizontal plana, el patrón triangular con paradas 26 % / 26 % del Apéndice 3 (p.302) es el ejemplo "de libro": 4 puntos, anchura 6 mm, sin aumento de corriente. Sirve como banco de pruebas antes de meterse con un patrón vertical ascendente, que es mucho más sensible al tiempo de parada y al ángulo del soplete.',
+        image: pdfImage('arc_welding', 302),
+        caption:
+          'Apéndice 3 — Triangular con parada en ambos extremos para junta de redondeo, horizontal plana. 4 puntos, tiempos 12 / 38 / 62 / 88 %, anchura 6 mm (Arc Welding Apéndice 3).',
+      },
+      {
+        text:
+          'Verifica antes de soldar. En CHECK con soldadura deshabilitada y Aux 140409 → Weaving Motion at Weld Off = Enable, recorre el cordón a velocidad lenta y observa que la trayectoria coincide con la figura que dibujaste, que la anchura cabe en la ranura y que las paradas se producen en los puntos correctos. Si el robot da E1123 "Speed error jtXX", es que pides demasiada anchura en demasiado poco tiempo: baja la frecuencia o reduce la anchura. Si el patrón no arranca, revisa que el origen de aprendizaje del primer punto tiene amplitud 0 — si no, el ciclo no cierra y el robot se queja.',
+        refs: [{ to: 'weaving', label: 'Habilitar Weaving Motion at Weld Off' }],
+      },
+      {
+        text:
+          'Probeta y ajuste fino. Solda probeta con el mismo material, espesor, posición y preparación que la pieza real. Mide el cordón y revisa: si los flancos del chaflán no funden, sube el tiempo de parada en ese punto (de 20 % a 25 %) o sube el aumento de corriente (de +15 % a +20 %); si el centro descuelga, baja el tiempo en el punto central o sube la velocidad de avance; si el cordón sale asimétrico, revisa que los porcentajes en los puntos espejo (p. ej. 2 y 4 en un triángulo simétrico) son iguales con signo cambiado. Reitera hasta resultado válido antes de guardar el patrón como definitivo.',
+      },
+    ],
+    notes: [
+      'Requiere la opción "Special Pattern Weaving" instalada en el controlador. Si no la tienes, los PN 6..10 no existen.',
+      'Máximo 15 puntos por ciclo. El primer y el último deben tener amplitud 0 en X/Y/Z para que el ciclo cierre y se repita limpio.',
+      'Una parada se hace metiendo dos puntos consecutivos con la misma posición; el tiempo de parada es la diferencia entre sus % de tiempo.',
+      'Para vertical ascendente el ángulo del soplete (péndulo, ±10°) es tan importante como el reparto de tiempos: dirige el calor hacia los cantos.',
+      'Si vas a usar el aumento de corriente/tensión en los puntos, configura antes Aux 1413 "Special Pattern Weaving Boost Target Exempt".',
+      'Calificación normativa: igual que con patrones estándar, una soldadura con patrón especial sujeta a norma (EN ISO 15614-1 o ASME IX) debe calificarse por ensayo. El patrón forma parte del WPS.',
+    ],
+    source:
+      'Arc Welding Operation Manual (Serie E) §10.3, §10.4 y Apéndice 3 (ejemplos A-8 a A-19). Opción Aux 1404-11 Special Pattern Weaving.',
   },
   {
     id: 'cambio-hilo',

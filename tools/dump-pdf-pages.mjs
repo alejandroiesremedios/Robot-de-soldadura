@@ -1,10 +1,20 @@
-// Volcar texto de un rango de páginas del PDF Serie E para inspección.
+// Volcar texto de un rango de páginas de un PDF para inspección.
+// Uso: node tools/dump-pdf-pages.mjs FROM TO [pdfId]
+//   pdfId: 'serie_e' (por defecto), 'arc_welding', 'k_roset'
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const PDF = path.join(ROOT, '90203-1104DSB_Operation Manual (E series)_Spanish.pdf');
+
+const PDFS = {
+  serie_e: '90203-1104DSB_Operation Manual (E series)_Spanish.pdf',
+  arc_welding: '90203-1036DSB_Arc Welding Operation Manual (E series)_Spanish.pdf',
+  k_roset: 'K-ROSET Instruction Manual_EN.pdf',
+};
+
+const PDF_ID = process.argv[4] ?? 'serie_e';
+const PDF = path.join(ROOT, PDFS[PDF_ID] ?? PDFS.serie_e);
 
 const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
 const data = new Uint8Array(await (await import('node:fs/promises')).readFile(PDF));
