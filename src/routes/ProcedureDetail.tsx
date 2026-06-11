@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { PROCEDURES, type ProcedureStep, type StepRef } from '../data/procedures';
 import { categoryChipClass } from '../lib/categoryColors';
 import ZoomableImage from '../components/ZoomableImage';
+import WeavingCalculator from '../components/WeavingCalculator';
 
 function normalizeStep(s: ProcedureStep): {
   text: string;
@@ -96,6 +97,8 @@ export default function ProcedureDetail() {
           );
         })}
       </ol>
+
+      {proc.widgets?.includes('weaving-calculator') && <WeavingCalculator />}
 
       {proc.notes && proc.notes.length > 0 && (
         <section className="card border-amber-500/40">

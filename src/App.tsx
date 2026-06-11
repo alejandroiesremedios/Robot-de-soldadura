@@ -12,6 +12,8 @@ import JournalEntry from './routes/JournalEntry';
 import Faq from './routes/Faq';
 import Fundamentos from './routes/Fundamentos';
 import FundamentoDetail from './routes/FundamentoDetail';
+import Joints from './routes/Joints';
+import JointDetail from './routes/JointDetail';
 
 export default function App() {
   return (
@@ -25,6 +27,8 @@ export default function App() {
         <Route path="/errores/:id" element={<ErrorDetail />} />
         <Route path="/procedimientos" element={<Procedures />} />
         <Route path="/procedimientos/:id" element={<ProcedureDetail />} />
+        <Route path="/uniones" element={<Joints />} />
+        <Route path="/uniones/:id" element={<JointDetail />} />
         <Route path="/parametros" element={<Parameters />} />
         <Route path="/diario" element={<Journal />} />
         <Route path="/diario/nuevo" element={<JournalEntry />} />

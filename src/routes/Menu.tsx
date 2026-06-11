@@ -15,6 +15,12 @@ const sections = [
     accent: 'from-sky-500/30 to-sky-700/10',
   },
   {
+    to: '/uniones',
+    title: 'Uniones',
+    desc: 'Recetas por junta y posición: robot + EWM capa a capa (raíz, hot pass, relleno, peinado).',
+    accent: 'from-teal-500/30 to-teal-700/10',
+  },
+  {
     to: '/parametros',
     title: 'Parámetros recomendados',
     desc: 'Recomendaciones por material, espesor y posición.',
@@ -37,7 +43,6 @@ const sections = [
     title: 'Preguntas frecuentes',
     desc: 'Dudas habituales sobre la operación del robot y la fuente.',
     accent: 'from-violet-500/30 to-violet-700/10',
-    fullWidth: true,
   },
 ];
 

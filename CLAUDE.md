@@ -26,6 +26,7 @@ PWA de **consulta y asistencia** para uso personal del usuario mientras opera un
 2. **Procedimientos paso a paso**: arranque, parada, cambio de hilo, cambio de boquilla, calibración TCP, homing, etc.
 3. **Parámetros de soldadura recomendados**: tabla por material/espesor/posición (corriente, tensión, velocidad de hilo, JOB del EWM).
 4. **Diario de incidencias y notas propias**: registro libre con fotos, búsqueda y vinculación a códigos de error.
+5. **Uniones (recetario)**: fichas por junta + posición (acero ~10 mm siempre) con la configuración robot + EWM capa a capa (raíz → hot pass → relleno → peinado), tabla "si algo falla" por capa y calculadora de weaving personalizado (Aux 1404-11). Convención fija: dentro del JOB de acero del EWM, P1 = raíz, P2 = hot pass, P3 = relleno, P4 = peinado.
 
 ## Inventario de procedimientos
 
@@ -122,6 +123,16 @@ Patrón ya validado en el procedimiento de **wire check** y en las secciones de 
 - La pantalla de inicio debe mostrar **una imagen del robot** (la subirá el usuario a la carpeta del proyecto). Usar esa imagen como portada/hero del home.
 
 ## Cambios realizados por sesión
+
+### 2026-06-11
+
+- **Correcciones de la revisión** (commit `c2644ad`): chip roto de `weaving-especial` → `StepRef` admite `kind: 'procedimiento'`; diario sin entradas vacías; borrados `robot.jpg` (3,4 MB) y 10 PNG sin uso (listas de `render-pdf-pages.mjs` actualizadas para no regenerarlos); iconos PWA PNG 192/512 (`tools/make-pwa-icons.mjs`); `*.tsbuildinfo` fuera de git. Precache 17,8 → 16,4 MiB; standalone 24 → 22 MB.
+- **Nueva pantalla "Uniones" (recetario)**: spec en `docs/superpowers/specs/2026-06-11-recetario-uniones-design.md`, plan en `docs/superpowers/plans/`. Rutas `/uniones` y `/uniones/:id`, botón teal en el menú. Modelo de datos en `src/data/joints.ts` (Joint → LayerConfig con bloques robot/ewm/ajustes).
+- **Ficha piloto `tope-v60-pf`**: a tope V 60°, talón 1-2 mm, gap 4 mm, S235JR 10 mm, PF/3G ascendente. 4 capas (raíz short-arc P1, hot pass P2, relleno P3 con patrón personalizado PN=6, peinado P4 con PN=7 y paradas asimétricas). Cada capa: bloques gemelos 🤖 Robot / ⚡ EWM, tabla síntoma→dónde→acción, chips a `programa-basico`/`job-ewm`/`weaving-especial`. Croquis SVG acotado (`JointDiagram`) con capas coloreadas.
+- **Calculadora de weaving personalizado**: lógica pura en `src/lib/weavingSheet.ts` (testeada — vitest añadido, `npm test`, 7 tests) + componente `WeavingCalculator`. Convierte frecuencia (Hz) + paradas por lado (s) + boost (%) en la hoja de puntos en % de ciclo para Aux 1404-11 (p. ej. 0,1 s más a la izquierda a 0,8 Hz = 8 puntos de %). Embebida en las capas con patrón personalizado y al final del procedimiento `weaving-especial` (campo nuevo `widgets` en `Procedure`).
+- Menú: FAQ ya no ocupa fila entera (empareja con Diario al ser 7 ítems).
+- Fichas futuras anotadas en la pantalla: a tope PA/1G y PC/2G, filete PB/2F y PF/3F asc., tubo PH/5G asc. (con sectores de programa) y PC/2G.
+- Tests 7/7, `npm run build` y standalone regenerado. Push a `main`.
 
 ### 2026-06-06
 

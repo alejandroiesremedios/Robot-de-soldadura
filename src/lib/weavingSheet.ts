@@ -27,6 +27,9 @@ export type SheetResult = {
 export function buildWeavingSheet(opts: SheetOptions): SheetResult {
   const { frecuenciaHz, paradaIzqS, paradaDchaS, paradaCentroS = 0, boostCorrientePct } = opts;
   const warnings: string[] = [];
+  if (![frecuenciaHz, paradaIzqS, paradaDchaS, paradaCentroS].every(Number.isFinite)) {
+    return { points: [], warnings, error: 'Rellena todos los campos con números.' };
+  }
   if (frecuenciaHz <= 0) return { points: [], warnings, error: 'La frecuencia debe ser mayor que 0.' };
   if (paradaIzqS < 0 || paradaDchaS < 0 || paradaCentroS < 0) {
     return { points: [], warnings, error: 'Las paradas no pueden ser negativas.' };

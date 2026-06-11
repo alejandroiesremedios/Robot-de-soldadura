@@ -28,6 +28,8 @@ export type Procedure = {
   source?: string;
   /** Imagen de portada del procedimiento (visión general). */
   cover?: { src: string; caption?: string };
+  /** Herramientas interactivas que se muestran tras los pasos. */
+  widgets?: 'weaving-calculator'[];
 };
 
 export const PROCEDURES: Procedure[] = [
@@ -638,6 +640,7 @@ export const PROCEDURES: Procedure[] = [
     ],
     source:
       'Arc Welding Operation Manual (Serie E) §10.3, §10.4 y Apéndice 3 (ejemplos A-8 a A-19). Opción Aux 1404-11 Special Pattern Weaving.',
+    widgets: ['weaving-calculator'],
   },
   {
     id: 'cambio-hilo',
