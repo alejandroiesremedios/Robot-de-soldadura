@@ -33,8 +33,8 @@ export default function Joints() {
       </ul>
 
       <div className="card text-xs text-slate-400">
-        Próximas fichas: a tope V60 en PA/1G y PC/2G · filete en PB/2F y PF/3F ascendente · tubo en
-        PH/5G ascendente y PC/2G. Material siempre acero (~10 mm).
+        Próximas fichas: a tope V60 en PA/1G y PC/2G · filete en PB/2F · tubo en PH/5G ascendente y
+        PC/2G. Material siempre acero (~10 mm).
       </div>
     </div>
   );

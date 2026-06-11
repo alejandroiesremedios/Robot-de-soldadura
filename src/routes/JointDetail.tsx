@@ -35,7 +35,7 @@ export default function JointDetail() {
         <p className="text-sm text-slate-300">{joint.posicion.descripcion}</p>
       </header>
 
-      <JointDiagram />
+      <JointDiagram tipo={joint.croquis} />
 
       <section className="card text-sm space-y-1.5">
         <InfoRow label="Preparación" value={joint.preparacion} />
