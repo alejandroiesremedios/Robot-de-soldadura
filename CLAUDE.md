@@ -10,10 +10,10 @@ PWA de **consulta y asistencia** para uso personal del usuario mientras opera un
 
 - **Tipo de app:** PWA (Progressive Web App) instalable en Android.
 - **Plataforma destino:** Android (móvil del usuario en el taller). Por ser PWA es accesible también desde cualquier navegador.
-- **Lenguaje / runtime:** _(pendiente de confirmar — propuesta: React/Vite + TypeScript, o similar ligero)_
-- **Persistencia:** _(pendiente — IndexedDB local para diario; contenido estático embebido)_
-- **Conectividad:** Wi-Fi/4G estable en el taller, pero la PWA debe cachear lo esencial (service worker) por buena práctica.
-- **Tests:** _(pendiente)_
+- **Lenguaje / runtime:** React 18 + Vite 5 + TypeScript + Tailwind, react-router (HashRouter), vite-plugin-pwa (Workbox).
+- **Persistencia:** IndexedDB local (`idb`) solo para el diario; el resto del contenido es estático embebido en el bundle.
+- **Conectividad:** Wi-Fi/4G estable en el taller; la PWA precachea todo con service worker.
+- **Tests:** vitest (`npm test`) — de momento cubre la lógica pura (`src/lib/weavingSheet.ts`).
 
 ## Hardware de referencia (no controlado por la app)
 
@@ -83,16 +83,21 @@ Estos temas se descartaron expresamente; si vuelven a salir, recordarlo antes de
 
 ```
 Robot de soldadura/
-└── CLAUDE.md          (este archivo)
+├── CLAUDE.md                  (este archivo)
+├── Robot Soldadura.html       (standalone autocontenido — gitignored, regenerar tras cada cambio)
+├── *.pdf                      (manuales fuente: Serie E, Arc Welding, touch sensing, wire check, K-ROSET)
+├── docs/superpowers/          (specs y planes de diseño)
+├── public/                    (iconos PWA: icon.svg + icon-192/512.png)
+├── src/
+│   ├── App.tsx                (rutas) · main.tsx (HashRouter + registro SW)
+│   ├── assets/pdf/<id>/       (páginas PNG renderizadas de los manuales)
+│   ├── components/            (Layout, NavBar, TopBar, ZoomableImage, JointDiagram, WeavingCalculator)
+│   ├── data/                  (procedures.ts, joints.ts, parameters.ts, pdfImages.ts)
+│   ├── db/journal.ts          (IndexedDB del diario)
+│   ├── lib/                   (weavingSheet.ts + tests, categoryColors.ts)
+│   └── routes/                (Home, Menu, Fundamentos, Procedures, Joints, Parameters, Journal, Errors, Faq + detalles)
+└── tools/                     (extract-pdfs, find/dump/render-pdf-pages, optimize-images, make-pwa-icons)
 ```
-
-_(El proyecto aún no tiene código. Se irá completando.)_
-
-## Cómo ejecutar / desarrollar
-
-- **Arrancar:** _(pendiente — depende del stack elegido)_
-- **Build:** _(pendiente)_
-- **Tests:** _(pendiente)_
 
 ## Convenciones y decisiones
 
@@ -138,6 +143,8 @@ Patrón ya validado en el procedimiento de **wire check** y en las secciones de 
 - Renderizadas 2 páginas nuevas del Arc Welding: **110** (§8.4.1 pantalla Aux 1401 del estado de soldadura) y **114** (§8.4.3 base de datos Aux 1403 con Big/Small Category). Inventario `arc_welding` 28 → 30 páginas.
 - Refuerzo visual del procedimiento multicapa (a petición del usuario: "buena ayuda visual… la pantalla del teach pendant con el botón que hay que pulsar"): 11 de los 12 pasos llevan figura del manual con pie explicativo (pantallas del TP 110/114/66/78, técnica 60/68/71, weaving 213/216, edición serie_e 137, VTP k_roset 164).
 - **Segunda ficha de Uniones: `filete-pf`** (filete en T vertical ascendente, PF/3F asc., garganta 6-8 mm, chapas 10 mm). 2 capas: raíz/pasada única (P1, PN=2 estándar 4-6 mm) y peinado opcional si a ≥ 8 mm (P4, patrón personalizado **PN=8** con paradas asimétricas por lado — convención: izquierda = chapa vertical; calculadora precargada con +0,05 s en ese lado). Mantiene la convención P1/P4 (P2/P3 libres) y reparte los PN entre fichas (6/7 tope, 8 filete). `JointDiagram` parametrizado (`tipo: 'tope-v' | 'filete-t'`) con croquis nuevo de la T acotado (garganta a, cateto z, símbolo de cordón saliendo del papel); campo `croquis` en el tipo `Joint`. Talón de la ficha a tope fijado en 2 mm (antes 1-2).
+- **Cierre de sesión**: 6 commits pusheados a `main` (`c2644ad` correcciones, `e03ac6c` spec, `cea964a` calculadora+tests, `6c138b0` pantalla Uniones, `e9b63b2` programa multicapa, `b0bbf5e` ficha filete) y **deploy a GitHub Pages ejecutado** (`npm run deploy` → Published) a petición del usuario. Reparto de PN acordado entre fichas: 6 = relleno tope V, 7 = peinado tope V, 8 = peinado filete; 9-10 libres.
+- Fichas pendientes de la matriz Uniones: a tope V60 en PA/1G y PC/2G · filete en PB/2F · tubo en PH/5G ascendente (explicar sectores de programa porque la posición rota alrededor del tubo) y PC/2G eje vertical.
 
 ### 2026-06-06
 
@@ -208,7 +215,8 @@ Patrón ya validado en el procedimiento de **wire check** y en las secciones de 
 ## Pendientes
 
 - **Códigos de error**: el usuario decidió no poblarlos todavía. Cuando dé luz verde, extraer del manual Serie E (§2.10 y §2.11) y de EWM.
-- **Configurar deploy a GitHub Pages**: crear repo en GitHub, conectar y publicar (script `npm run deploy` ya disponible con `gh-pages`). _No hacer push hasta que el usuario lo pida._
+- ~~Configurar deploy a GitHub Pages~~ — **hecho**: repo `alejandroiesremedios/Robot-de-soldadura`, `npm run deploy` publica en `gh-pages`. Último deploy: 2026-06-11. Recordar: el push NO publica la web; hay que lanzar deploy cuando el usuario quiera ver los cambios en el móvil.
+- **Fichas pendientes de Uniones**: a tope V60 en PA/1G y PC/2G · filete en PB/2F · tubo en PH/5G ascendente y PC/2G eje vertical (acero ~10 mm siempre).
 - **Recopilar de la web de EWM/Kawasaki** lo que falte.
 - **Conectar Firebase** (cuenta `alejandrofuentes@iesremedios.es`) para los datos que la app necesite persistir/sincronizar. Nombre del proyecto Firebase: **"Robot de soldadura"** (mismo nombre que el repo). _No hacer nada todavía._ Cuando se aborde: (1) decidir primero qué datos van a Firebase (¿diario de incidencias para tenerlo en varios dispositivos?, ¿parámetros editables?, ¿códigos de error?) vs. qué se queda en IndexedDB local; (2) crear proyecto Firebase desde la consola web (firebase.google.com) con esa cuenta — no es un repo de GitHub, es un proyecto independiente en Google Cloud / Firebase; (3) habilitar Firestore y/o Auth según necesidad; (4) instalar SDK `firebase` y añadir config (claves vía variables de entorno `VITE_FIREBASE_*`, nunca commit directo).
 
