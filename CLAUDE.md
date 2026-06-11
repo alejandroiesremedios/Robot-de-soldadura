@@ -41,7 +41,7 @@ Listado maestro de procedimientos que deben existir en la app (pantalla Procedim
 
 ### Robot — uso avanzado del teach pendant
 
-- 🔵 Crear weaving / oscilación sobre un cordón (Arc Welding §5.5.12, §6.2, §10)
+- ✅ Crear weaving / oscilación sobre un cordón — patrones estándar PN=1..5 (Arc Welding §5.5.12, §6.2, §10)
 - ✅ Weaving triangular para 3F y 3G ascendente (GMAW, acero, hilo Ø1,0) — PN=2, parámetros orientativos
 - ✅ Programa de soldadura básico — AC / WS / WC / WE entre puntos (Arc Welding §5.6–§5.8, figura 5.1)
 - ⬜ Dar de alta una entrada en la base de datos de condiciones de soldadura (Aux 0420) (Arc Welding)

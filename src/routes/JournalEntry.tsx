@@ -144,7 +144,11 @@ export default function JournalEntry() {
       </div>
 
       <div className="flex gap-2">
-        <button onClick={onSave} className="btn-primary flex-1">
+        <button
+          onClick={onSave}
+          disabled={!title.trim() && !body.trim()}
+          className="btn-primary flex-1 disabled:opacity-40 disabled:pointer-events-none"
+        >
           Guardar
         </button>
         {editingId !== undefined && (

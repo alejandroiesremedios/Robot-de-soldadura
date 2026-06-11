@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { PARAMETERS, type Parameter } from '../data/parameters';
+import { PARAMETERS } from '../data/parameters';
 
 const MATERIALS = ['Todos', 'Acero al carbono', 'Acero inox', 'Aluminio'] as const;
 type Material = (typeof MATERIALS)[number];
@@ -91,7 +91,7 @@ export default function Parameters() {
   );
 }
 
-function Row({ label, value }: { label: string; value: Parameter['currentA'] }) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between text-sm">
       <span className="text-slate-400">{label}</span>

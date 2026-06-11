@@ -70,7 +70,7 @@ export default function ProcedureDetail() {
                   {step.refs.map((r) => (
                     <Link
                       key={`${r.to}-${r.label}`}
-                      to={`/fundamentos/${r.to}`}
+                      to={`/${r.kind === 'procedimiento' ? 'procedimientos' : 'fundamentos'}/${r.to}`}
                       className="chip bg-indigo-500/20 text-indigo-100 border border-indigo-400/40 active:scale-[0.97]"
                     >
                       → {r.label}

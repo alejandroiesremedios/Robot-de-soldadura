@@ -1,10 +1,12 @@
 import { pdfImage } from './pdfImages';
 
 export type StepRef = {
-  /** id del fundamento (clave de FUNDAMENTOS_DETAILS) */
+  /** id del fundamento (clave de FUNDAMENTOS_DETAILS) o, si kind='procedimiento', id de otro procedimiento */
   to: string;
   /** etiqueta corta que aparece en el chip */
   label: string;
+  /** destino del enlace; por defecto enlaza a /fundamentos */
+  kind?: 'fundamento' | 'procedimiento';
 };
 
 export type ProcedureStep =
@@ -602,7 +604,13 @@ export const PROCEDURES: Procedure[] = [
         image: pdfImage('arc_welding', 306),
         caption:
           'Apéndice 3 — Patrón triangular horizontal para ranura con bisel único a 22,5°. 3 puntos del ciclo (tiempos 25 / 50 / 75 %), sin paradas: punto de partida que conviene modificar añadiendo paradas para 3G (Arc Welding Apéndice 3).',
-        refs: [{ to: 'weaving-3f-3g', label: 'Caso aplicado 3F/3G con PN=2 estándar' }],
+        refs: [
+          {
+            to: 'weaving-3f-3g',
+            label: 'Caso aplicado 3F/3G con PN=2 estándar',
+            kind: 'procedimiento',
+          },
+        ],
       },
       {
         text:

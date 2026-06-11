@@ -25,21 +25,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const OUT_DIR = path.resolve(ROOT, 'src/assets/pdf');
 
-// PDFs cortos: renderizamos todas las páginas (son fichas autocontenidas).
-// PDFs largos: lista de páginas concretas que nos interesan.
+// Lista de páginas concretas que usa la app (las no referenciadas se
+// eliminan: con import.meta.glob eager toda página renderizada se embebe
+// en el bundle y en el standalone aunque nadie la use).
 const JOBS = [
-  { pdf: 'Touch_sensing.pdf', id: 'touch_sensing', pages: null },
-  { pdf: 'wire_check.pdf', id: 'wire_check', pages: null },
+  { pdf: 'Touch_sensing.pdf', id: 'touch_sensing', pages: [2, 3, 4, 5, 6, 7] },
+  { pdf: 'wire_check.pdf', id: 'wire_check', pages: [2, 3, 4] },
   {
     pdf: '90203-1104DSB_Operation Manual (E series)_Spanish.pdf',
     id: 'serie_e',
     // Páginas localizadas con find-pdf-pages.mjs (+ vecinas cuando interesa la
     // figura siguiente o la tabla continúa).
     //   24       2.1 Apariencia del control
-    //   25-26    Panel de operación / panel opcional
+    //   26       Panel de operación / panel opcional
     //   29       2.3 Apariencia del mando manual (TP)
-    //   30-36    2.4 Teclado del TP (tabla de funciones de teclas)
-    //   37-38    2.5 Pantallas del TP
+    //   30-31    2.4 Teclado del TP (tabla de funciones de teclas)
+    //   37       2.5 Pantallas del TP
     //   94       3.1 Procedimiento de encendido
     //   95       3.2 Procedimiento de desconexión
     //   96       3.3 Métodos para detener el robot
@@ -55,7 +56,7 @@ const JOBS = [
     //  214       AUX. 0402 Posición de inicio (HOME) — pantalla menú
     //  215       Ajuste numérico de la pose HOME (valores por eje)
     pages: [
-      24, 25, 26, 29, 30, 31, 37, 38, 94, 95, 96, 98, 101, 103, 105, 114, 125,
+      24, 26, 29, 30, 31, 37, 94, 95, 96, 98, 101, 103, 105, 114, 125,
       127, 132, 137, 214, 215,
     ],
   },
@@ -78,11 +79,9 @@ const JOBS = [
     //   69   5.8.3 Paso 3 (P2) — WC con escape Z- en herramienta
     //   70   5.8.3 Paso 4 (P3) — WE, cráter
     //   71   5.8.3 Paso 5 (P4-P5) — AC + escape Z-
-    //   77   6.2 Movimiento de weaving con soldadura desactivada
     //   78   Indicador "Weaving OFF" en pantalla cuando weld está disable
     //  213   Cap. 10 — Tabla de patrones estándar registrados (PN=1..5)
     //  216   10.2 Direcciones (vertical / lateral / horizontal) + anchura WV
-    //  217   10.2 Relación frecuencia-ciclo + ejemplo PN=1
     //  219   PN=2 Triangular — movimiento + relación temporal del ciclo
     //  220   PN=3 Triangular recíproco con parada en ambos extremos + centro
     //  227   10.4.1 Sistema de coordenadas X/Y/Z + ángulo del soplete
@@ -94,8 +93,8 @@ const JOBS = [
     //  306   Apéndice 3 — Triangular horizontal para ranura bisel único 22,5°
     //  312   Apéndice 3 — Triangular con paradas + aumento de corriente 20 % en extremos
     pages: [
-      46, 48, 49, 51, 56, 60, 61, 62, 65, 66, 67, 68, 69, 70, 71, 77, 78,
-      213, 216, 217, 219, 220, 227, 230, 233, 234, 235, 302, 306, 312,
+      46, 48, 49, 51, 56, 60, 61, 62, 65, 66, 67, 68, 69, 70, 71, 78,
+      213, 216, 219, 220, 227, 230, 233, 234, 235, 302, 306, 312,
     ],
   },
   {
@@ -106,10 +105,8 @@ const JOBS = [
     // Fundamentos → Teach pendant.
     // OJO: el PDF tiene 6 páginas de cubierta antes de empezar la numeración
     // impresa, por lo que PDF page = printed page + 6.
-    //  163 (impresa 157)  4.1.1.2 Virtual Teach Pendant (VTP) — introducción
     //  164 (impresa 158)  Position Change of Hard Key (captura del VTP)
-    //  165 (impresa 159)  Hard key display switching (modos del hard key)
-    pages: [163, 164, 165],
+    pages: [164],
   },
 ];
 
