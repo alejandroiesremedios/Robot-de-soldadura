@@ -377,6 +377,137 @@ export const PROCEDURES: Procedure[] = [
       'Arc Welding Operation Manual (Serie E) §5.6, §5.7 y §5.8 (especialmente §5.8.3 con la figura 5.1 y los 5 pasos de aprendizaje del cordón pg10).',
   },
   {
+    id: 'programa-multicapa',
+    title: 'Programa multicapa del robot — 3-4 cordones con el mismo JOB y distinto programa (P1..P4)',
+    category: 'Soldadura',
+    summary:
+      'Cómo construir UN solo programa del robot que suelda una unión a tope en V (gap 4 mm, talón 2 mm, espesor 10 mm) en 3 o 4 capas encadenadas: raíz, hot pass, relleno y peinado. Cada capa es su propio bloque WS → WC → WE dentro del mismo programa, y cada WS llama al MISMO JOB del EWM pero a un programa distinto dentro del JOB (P1..P4) a través de su estado de soldadura. La pasarela es siempre el estado de soldadura: el programa del robot nunca habla con el EWM directamente. Caso aplicado: la ficha "A tope V60° PF/3G" de la pantalla Uniones.',
+    cover: {
+      src: pdfImage('arc_welding', 65),
+      caption:
+        'Figura 5.1 del manual: la trayectoria de UNA pasada (P0 aproximación → P1 WS → P2 WC → P3 WE → P4 escape). El programa multicapa repite este bloque 3-4 veces, una por capa, antes de volver a HOME (Arc Welding §5.8.3).',
+    },
+    steps: [
+      {
+        text:
+          'Entiende la arquitectura antes de tocar nada. Un programa multicapa es el programa básico (WS/WC/WE) repetido N veces dentro del mismo programa del robot: HOME → aproximación → [CAPA 1: WS abajo → WE arriba] → escape → vuelta abajo → [CAPA 2] → escape → vuelta abajo → [CAPA 3] → [CAPA 4] → HOME. Lo que distingue una capa de otra son DOS cosas: (1) la posición de los puntos (cada capa va 2-3 mm más afuera del chaflán) y (2) el estado de soldadura que lleva su WS, que es quien llama al programa Pn del JOB. El JOB del EWM es el mismo en todo el programa porque material (S235JR), gas (M21) e hilo (G3Si1 Ø1,0) no cambian — solo cambian las recetas P1..P4 dentro de él.',
+        image: pdfImage('arc_welding', 60),
+        caption:
+          'Flujo de UNA pasada (§5.7.1): arco ON en P1, soldadura hasta P3, arco OFF y escape. El programa multicapa encadena este bloque una vez por capa (Arc Welding §5.7.1).',
+        refs: [
+          { to: 'programa-basico', label: 'Programa básico (una pasada)', kind: 'procedimiento' },
+          { to: 'estado-soldadura', label: 'Qué es un estado de soldadura' },
+        ],
+      },
+      {
+        text:
+          'Prepara primero el lado EWM: el JOB de acero debe tener guardados P1 = raíz, P2 = hot pass, P3 = relleno y P4 = peinado (procedimiento "Crear un programa dentro de un JOB"). Si vas a usar patrones de weaving personalizados en relleno y peinado, créalos también antes en Aux 1404-11 (PN=6 y PN=7). Nada de esto se puede hacer "sobre la marcha" mientras grabas el programa.',
+        image: pdfImage('arc_welding', 213),
+        caption:
+          'Tabla de patrones de weaving del controlador (§10.1.1): PN=1..5 vienen de fábrica; los huecos PN=6..10 son donde se cargan los personalizados del relleno y el peinado.',
+        refs: [
+          { to: 'job-ewm', label: 'Guardar P1..P4 en el JOB', kind: 'procedimiento' },
+          { to: 'weaving-especial', label: 'Crear PN=6 / PN=7', kind: 'procedimiento' },
+        ],
+      },
+      {
+        text:
+          'Crea un estado de soldadura POR CAPA en la base de datos de condiciones (Aux 0420). El estado es el pegamento que une todo: velocidad de soldadura + llamada al JOB/Pn + weaving. Ejemplo con cuatro estados: estado nº 11 (raíz) = JOB acero + P1, weld speed 9 cm/min, weaving PN=1 (2-3 mm, 1,2 Hz); estado nº 12 (hot pass) = mismo JOB + P2, 11 cm/min, PN=2 (4-5 mm); estado nº 13 (relleno) = P3, 7 cm/min, PN=6 personalizado; estado nº 14 (peinado) = P4, 6 cm/min, PN=7 personalizado. Apunta los números en papel: los necesitarás al grabar cada WS.',
+        image: pdfImage('arc_welding', 110),
+        caption:
+          'Pantalla real del TP (§8.4.1): arriba se teclea el número de estado (0-99) y se pulsa ENTER; abajo, sus campos — Weld Speed, señales de salida (corriente/tensión → JOB/Pn) y Weaving Data (anchura, frecuencia, patrón). Un estado por capa.',
+        refs: [{ to: 'estado-soldadura', label: 'Estado de soldadura (Aux 0420)' }],
+      },
+      {
+        text:
+          'Dibuja el programa en papel con la numeración de pasos. Para 4 capas en PF (vertical ascendente, el cordón siempre SUBE): paso 1 HOME (AC JOINT) → paso 2 aproximación abajo, 30-50 mm fuera de la junta (AC JOINT) → CAPA 1: paso 3 WS al fondo del chaflán abajo (estado 11) + paso 4 WE arriba (estado 11) → paso 5 escape Z- herramienta (AC LINEAR) → paso 6 vuelta al punto bajo de aproximación (AC JOINT, por FUERA de la junta) → CAPA 2: pasos 7-8 (WS/WE, estado 12) → escape y vuelta → CAPA 3: pasos 11-12 (estado 13) → CAPA 4: pasos 15-16 (estado 14) → escape final → HOME. Si el cordón necesita puntos intermedios, cada capa lleva sus WC entre WS y WE.',
+        image: pdfImage('arc_welding', 66),
+        caption:
+          'Pantalla de aprendizaje con la lista de pasos del programa (§5.8.3, Figura 5.2): cada fila es un paso con su instrucción, interpolación y estado. Así se verá tu programa multicapa, con un bloque WS/WE por capa.',
+        refs: [
+          { to: 'instrucciones-punto', label: 'AC / WS / WC / WE' },
+          { to: 'interpolaciones', label: 'JOINT para volver, LINEAR para soldar' },
+        ],
+      },
+      {
+        text:
+          'Graba la CAPA 1 (raíz, estado nº 11). Lleva el TCP al fondo del gap en el extremo inferior de la junta: el hilo centrado entre los dos talones de 2 mm, stick-out 10-12 mm, soplete con 5-10° de empuje hacia arriba. Graba WS LINEAR con estado 11. Sube en jog (modo BASE, velocidad lenta) hasta el extremo superior manteniendo el hilo centrado en el gap y graba WE LINEAR estado 11. Es la capa más delicada: si el TCP no va centrado en el gap, la raíz se pega a un talón y deja el otro frío.',
+        image: pdfImage('arc_welding', 68),
+        caption:
+          'Grabación de un WS en el TP (§5.8.3, paso 2): modo de coordenadas BASE con <COORD>, ajuste del ángulo del soplete con A+JT6, aproximación fina con <TEACH SPEED> en 1 y REC para grabar.',
+        refs: [
+          { to: 'grabar-punto', label: 'Cómo grabar un punto' },
+          { to: 'partes-robot', label: 'Modo de coordenadas BASE' },
+        ],
+      },
+      {
+        text:
+          'Graba el escape y la vuelta abajo. Tras el WE: AC LINEAR con Z- en modo HERRAMIENTA (20-30 mm perpendicular a la chapa, saca la antorcha del cordón recién hecho sin arrastrarla). Después AC JOINT de vuelta a un punto bajo, separado de la junta, desde donde empezará la capa siguiente. Importante: la vuelta baja SIEMPRE por fuera de la junta — nunca cruces la antorcha por encima del cordón caliente.',
+        image: pdfImage('arc_welding', 71),
+        caption:
+          'Escape tras el WE con Z- en modo herramienta y grabación del AC de salida (§5.8.3, paso 5). En multicapa este escape se repite al final de cada capa.',
+        refs: [{ to: 'instrucciones-punto', label: 'AC tras WE' }],
+      },
+      {
+        text:
+          'Graba la CAPA 2 (hot pass, estado nº 12). Los puntos son "los mismos" que la raíz pero con el TCP unos 2 mm más afuera (menos metido en el chaflán), porque la raíz ya ocupa el fondo. Dos maneras: (a) la fiable la primera vez — suelda la raíz en la probeta, cepilla, y enseña los puntos de la capa 2 sobre la raíz real que acabas de hacer; (b) la rápida cuando ya tienes experiencia — copia los pasos de la capa 1 y desplázalos con MOD en Z- de herramienta la altura de capa (~2 mm), sin re-enseñar. Graba WS y WE con estado 12.',
+        image: pdfImage('serie_e', 137),
+        caption:
+          'Añadir un paso a un programa existente (Serie E §5.6.2): así se insertan los bloques de las capas 2, 3 y 4 a continuación de la capa ya grabada.',
+        refs: [{ to: 'grabar-punto', label: 'REC graba nuevo, MOD corrige' }],
+      },
+      {
+        text:
+          'Repite para CAPA 3 (relleno, estado nº 13, ~2-3 mm más afuera que el hot pass) y CAPA 4 (peinado, estado nº 14, con el TCP enrasado con la superficie de la chapa, +1 mm). En el peinado, el weaving PN=7 debe sobrepasar 1-2 mm cada borde del chaflán — la anchura se pone en los datos auxiliares del WC/WE de esa capa, no en el estado. Con 10 mm de espesor puedes cerrar en 3 capas (raíz + relleno + peinado, saltándote el hot pass) si la raíz sale limpia y sin silicatos incrustados; el programa es idéntico con un bloque menos.',
+        image: pdfImage('arc_welding', 216),
+        caption:
+          'Direcciones del weaving y anchura WV (§10.2): la anchura de cada capa se mide perpendicular al avance; en el peinado debe cubrir el chaflán más 1-2 mm por borde.',
+        refs: [
+          { to: 'weaving', label: 'Weaving en WC/WE', kind: 'procedimiento' },
+          { to: 'posiciones-soldadura', label: 'Posición PF / 3G' },
+        ],
+      },
+      {
+        text:
+          'Resuelve la limpieza entre capas. Entre pasada y pasada hay que cepillar silicatos y respetar la temperatura entre pasadas (~250 °C máx. en S235JR). Opciones: (a) pulsa HOLD al terminar cada capa (el robot se detiene en el AC de vuelta), cepilla, mide temperatura y reanuda — la más práctica en piezas sueltas; (b) graba un timer de espera en el punto de vuelta (campo timer de los datos auxiliares del AC) si solo necesitas enfriamiento; (c) en producción en serie, valora una estación de limpieza. Empieza siempre por la opción (a).',
+      },
+      {
+        text:
+          'Verifica TODO el programa en CHECK sin arco. Recorre las 4 capas con CYCLE START a velocidad baja y comprueba: las cuatro líneas de soldadura van progresivamente más afuera (alturas de capa crecientes), los escapes salen perpendiculares sin rozar, las vueltas bajan por fuera de la junta, y el último paso vuelve a HOME limpio. Aquí se cazan el 90 % de los errores: un WS de la capa 3 con el estado de la capa 1, un retorno que cruza la junta, una capa olvidada.',
+        image: pdfImage('arc_welding', 78),
+        caption:
+          'Pantalla del TP en CHECK con la soldadura deshabilitada: el indicador "Weaving OFF" confirma que se recorre la línea base sin arco ni oscilación (§6.2).',
+        refs: [{ to: 'teach-pendant', label: 'Modo CHECK' }],
+      },
+      {
+        text:
+          'CHECK con arco sobre probeta, capa a capa. Suelda la capa 1, HOLD, cepilla y MIRA: ¿penetra la raíz?, ¿moja los dos talones? Si no, ajusta P1 en el EWM o el estado 11 (velocidad), no los puntos. Continúa capa a capa. La regla de oro del multicapa: los defectos de cada capa se corrigen ANTES de echar la siguiente encima — una raíz mala enterrada bajo tres capas es una pieza al contenedor de chatarra.',
+        image: pdfImage('arc_welding', 114),
+        caption:
+          'Base de datos de condiciones (Aux 1403, §8.4.3): los valores de referencia se consultan por forma de junta (Big/Small Category) y se vuelcan al estado con <Auto Set>. Útil como segunda opinión al ajustar una capa.',
+        refs: [{ to: 'estado-soldadura', label: 'Ajustar por estado, no por puntos' }],
+      },
+      {
+        text:
+          'Pasa a AUTO cuando la probeta salga bien dos veces seguidas. El ciclo completo: HOME → capa 1 → (HOLD limpieza) → capa 2 → … → capa 4 → HOME. Los valores de cada capa (WFS, U-corr, weaving, ajustes ante defectos) los tienes en la ficha "A tope V60° gap 4 — PF/3G" de la pantalla Uniones — este procedimiento pone la estructura; la ficha pone los números.',
+        image: pdfImage('k_roset', 164),
+        caption:
+          'Teach pendant (captura a color del VTP de K-ROSET): zona de pantalla arriba y hard keys abajo — TEACH/REPEAT, HOLD/RUN y CYCLE START son las teclas del ciclo en AUTO.',
+        refs: [{ to: 'teach-pendant', label: 'Modos TEACH / CHECK / AUTO' }],
+      },
+    ],
+    notes: [
+      'Un solo JOB para todo el programa: el JOB fija material + gas + hilo, que no cambian entre capas. Lo que cambia por capa es el programa Pn DENTRO del JOB, llamado desde el estado de soldadura de cada WS.',
+      'Nunca cambies de Pn "a mano" en el panel del EWM durante el ciclo: todo va por los estados de soldadura, así el programa es repetible.',
+      '¿3 o 4 capas en 10 mm? 4 (raíz + hot pass + relleno + peinado) si la raíz sale con silicatos o mordeduras que conviene refundir; 3 (raíz + relleno + peinado) si la raíz sale limpia. Decide sobre la probeta, no sobre la pieza.',
+      'Alturas de capa orientativas: raíz rellena el fondo (2-3 mm), hot pass +2 mm, relleno +2-3 mm, peinado enrasa y corona 1-2 mm.',
+      'Copiar y desplazar pasos de un programa (para clonar la capa 1 en las siguientes) tiene su propio procedimiento pendiente (Serie E §6); mientras tanto, enseñar sobre la probeta real es lo más seguro.',
+      'Cada capa puede llevar también sus WC intermedios si la junta es larga o cambia de plano; el estado de soldadura debe ser el mismo en WS, WC y WE de una misma capa.',
+    ],
+    source:
+      'Arc Welding Operation Manual (Serie E) §5.7-§5.8 (estructura WS/WC/WE y estados de soldadura). Aplicación multicapa según práctica GMAW; valores por capa en la ficha tope-v60-pf (pantalla Uniones).',
+  },
+  {
     id: 'weaving',
     title: 'Añadir weaving (oscilación) a un cordón — usar un patrón estándar PN=1..5',
     category: 'Soldadura',

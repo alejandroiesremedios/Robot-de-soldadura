@@ -80,6 +80,8 @@ const JOBS = [
     //   70   5.8.3 Paso 4 (P3) — WE, cráter
     //   71   5.8.3 Paso 5 (P4-P5) — AC + escape Z-
     //   78   Indicador "Weaving OFF" en pantalla cuando weld está disable
+    //  110   8.4.1 Pantalla del estado de soldadura por arco (Aux 1401)
+    //  114   8.4.3 Base de datos de condiciones (Aux 1403) — Big/Small Category
     //  213   Cap. 10 — Tabla de patrones estándar registrados (PN=1..5)
     //  216   10.2 Direcciones (vertical / lateral / horizontal) + anchura WV
     //  219   PN=2 Triangular — movimiento + relación temporal del ciclo
@@ -94,7 +96,7 @@ const JOBS = [
     //  312   Apéndice 3 — Triangular con paradas + aumento de corriente 20 % en extremos
     pages: [
       46, 48, 49, 51, 56, 60, 61, 62, 65, 66, 67, 68, 69, 70, 71, 78,
-      213, 216, 219, 220, 227, 230, 233, 234, 235, 302, 306, 312,
+      110, 114, 213, 216, 219, 220, 227, 230, 233, 234, 235, 302, 306, 312,
     ],
   },
   {

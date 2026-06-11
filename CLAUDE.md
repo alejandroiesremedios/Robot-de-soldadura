@@ -45,6 +45,7 @@ Listado maestro de procedimientos que deben existir en la app (pantalla Procedim
 - ✅ Crear weaving / oscilación sobre un cordón — patrones estándar PN=1..5 (Arc Welding §5.5.12, §6.2, §10)
 - ✅ Weaving triangular para 3F y 3G ascendente (GMAW, acero, hilo Ø1,0) — PN=2, parámetros orientativos
 - ✅ Programa de soldadura básico — AC / WS / WC / WE entre puntos (Arc Welding §5.6–§5.8, figura 5.1)
+- ✅ Programa multicapa — 3-4 cordones encadenados en un programa, mismo JOB con P1..P4 vía estados de soldadura (Arc Welding §5.7-§5.8 + práctica GMAW)
 - ⬜ Dar de alta una entrada en la base de datos de condiciones de soldadura (Aux 0420) (Arc Welding)
 - ✅ Crear / editar patrón especial de weaving (Aux 1404-11) — modificar tiempos y paradas en vértices, con caso aplicado a unión a tope vertical ascendente (Arc Welding §10.3–§10.4 + Apéndice 3)
 - ⬜ Copiar / mover / borrar pasos de un programa (Serie E §6 edición de programa)
@@ -133,6 +134,9 @@ Patrón ya validado en el procedimiento de **wire check** y en las secciones de 
 - Menú: FAQ ya no ocupa fila entera (empareja con Diario al ser 7 ítems).
 - Fichas futuras anotadas en la pantalla: a tope PA/1G y PC/2G, filete PB/2F y PF/3F asc., tubo PH/5G asc. (con sectores de programa) y PC/2G.
 - Tests 7/7, `npm run build` y standalone regenerado. Push a `main`.
+- **Nuevo procedimiento `programa-multicapa`** (a petición del usuario): un solo programa del robot para la unión a tope en V (gap 4, talón 2, 10 mm) en 3-4 capas encadenadas, llamando al MISMO JOB del EWM con distinto Pn (P1..P4) vía un estado de soldadura por capa (nº 11-14). 12 pasos: arquitectura, preparación EWM/PN, estados por capa, esquema en papel, grabación capa 1 (raíz centrada en el gap), escape/vuelta por fuera de la junta, capas 2-4 con offset de ~2-3 mm (enseñar sobre probeta o clonar+MOD), limpieza entre capas (HOLD/timer/interpass 250 °C), CHECK sin arco, CHECK con arco capa a capa, AUTO. 6 notas (3 vs 4 capas, alturas orientativas, mismo estado en WS/WC/WE de una capa…). Enlazado desde la capa raíz de la ficha `tope-v60-pf`.
+- Renderizadas 2 páginas nuevas del Arc Welding: **110** (§8.4.1 pantalla Aux 1401 del estado de soldadura) y **114** (§8.4.3 base de datos Aux 1403 con Big/Small Category). Inventario `arc_welding` 28 → 30 páginas.
+- Refuerzo visual del procedimiento multicapa (a petición del usuario: "buena ayuda visual… la pantalla del teach pendant con el botón que hay que pulsar"): 11 de los 12 pasos llevan figura del manual con pie explicativo (pantallas del TP 110/114/66/78, técnica 60/68/71, weaving 213/216, edición serie_e 137, VTP k_roset 164).
 
 ### 2026-06-06
 

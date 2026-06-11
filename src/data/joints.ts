@@ -107,6 +107,7 @@ export const JOINTS: Joint[] = [
           { sintoma: 'Se pega a un talón y deja el otro sin fundir', donde: 'robot', accion: 'Centra el TCP en el gap (reaprende los puntos con MOD) o añade weaving PN=1 de 2 mm.' },
         ],
         refs: [
+          { to: 'programa-multicapa', label: 'Programa del robot completo (4 capas)', kind: 'procedimiento' },
           { to: 'programa-basico', label: 'Estructura WS/WC/WE', kind: 'procedimiento' },
           { to: 'job-ewm', label: 'Guardar P1..P4 dentro del JOB (EWM)', kind: 'procedimiento' },
           { to: 'estado-soldadura', label: 'Estado de soldadura' },
